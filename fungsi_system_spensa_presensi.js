@@ -1,10 +1,12 @@
-/* ==========================================================================
-   SPENSA PRESENSI - CORE FUNCTION LIBRARY (function.js)
-   Enterprise IT Engineering Architecture v2.5
-   ========================================================================== */
+/**
+ * ==========================================================================
+ * SPENSA PRESENSI - CORE FUNCTION LIBRARY (function.js)
+ * Enterprise IT Engineering Architecture v2.5
+ * ==========================================================================
+ */
 
 /**
- * Global Application State & Storage Keys
+ * Storage key constants used to synchronize data with localStorage.
  */
 const STORAGE_KEYS = {
     USERS: 'spensa_users_db',
@@ -17,17 +19,21 @@ const STORAGE_KEYS = {
 };
 
 /**
- * Default System Settings
+ * Default school operational settings and coordinates (Center point: Ternate/Halsel region).
  */
 const defaultSchoolSettings = {
     jamMasuk: '07:15',
     jamPulang: '14:00',
+    jumlahHariSekolah: 20,
     radiusMeter: 100,
     lat: -0.7893,
     lng: 127.3820,
     aktifHari: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
 };
 
+/**
+ * Global variable for active camera stream tracking.
+ */
 let activeMediaStream = null;
 
 /**
@@ -36,7 +42,7 @@ let activeMediaStream = null;
  * @param {number} lon1 - Longitude of point 1 (in degrees)
  * @param {number} lat2 - Latitude of point 2 (in degrees)
  * @param {number} lon2 - Longitude of point 2 (in degrees)
- * @returns {number} Distance in meters
+ * @returns {number} Distance in meters rounded to nearest integer
  */
 function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
     const EARTH_RADIUS_METERS = 6371000; // Earth's mean radius in meters
@@ -56,7 +62,7 @@ function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
  * @param {number} userLat - User current latitude
  * @param {number} userLng - User current longitude
  * @param {Object} schoolConfig - School location settings object
- * @returns {Object} Result object containing insideGeofence boolean and distanceMeters
+ * @returns {Object} Result object containing insideGeofence status, distance, and badge text
  */
 function verifyGeofenceLocation(userLat, userLng, schoolConfig = defaultSchoolSettings) {
     const distance = calculateHaversineDistance(
@@ -73,8 +79,8 @@ function verifyGeofenceLocation(userLat, userLng, schoolConfig = defaultSchoolSe
         distanceMeters: distance,
         allowedRadius: schoolConfig.radiusMeter,
         statusMessage: isInside 
-            ? `✓ Dalam Radius (${distance}m dari pusat sekolah)` 
-            : `❌ Diluar Radius (${distance}m, Batas Maks: ${schoolConfig.radiusMeter}m)`
+            ? `✓ Dalam Radius (${distance}m)` 
+            : `❌ Diluar Radius (${distance}m, Max: ${schoolConfig.radiusMeter}m)`
     };
 }
 
@@ -142,14 +148,31 @@ function captureWebcamFrame(videoId, canvasId) {
 
 /**
  * Validates user credentials against database records.
+ * Rules:
+ * - Admin: Username "Gacor" / Password "spensahalsel"
+ * - Siswa: NIS is both Username and Password
+ * - Guru: NIP is both Username and Password
+ * - Tendik: Username & Password set during registration
+ * 
  * @param {string} identifier - Username / NIS / NIP
  * @param {string} password - Input password
  * @param {Array} usersArray - List of registered user records
- * @returns {Object|null} User record or null if invalid
+ * @returns {Object|null} Authenticated user record or null
  */
 function authenticateCredentials(identifier, password, usersArray = []) {
     const cleanId = String(identifier).trim();
     const cleanPass = String(password).trim();
+
+    // Check Hardcoded Admin
+    if (cleanId === 'Gacor' && cleanPass === 'spensahalsel') {
+        return {
+            id: 'admin-001',
+            nama: 'Administrator Utama',
+            username: 'Gacor',
+            role: 'Admin',
+            foto: 'https://placehold.co/100x100/6366f1/ffffff?text=ADM'
+        };
+    }
 
     return usersArray.find(user => {
         const matchUsername = user.username === cleanId;
@@ -212,22 +235,22 @@ function createUserDataRecord(role, formData) {
 
     if (role === 'Siswa') {
         baseRecord.username = formData.nis;
-        baseRecord.password = formData.nis; // Default password NIS
+        baseRecord.password = formData.nis; // NIS is Username & Password
         baseRecord.nis = formData.nis;
-        baseRecord.ttl = formData.ttl;
-        baseRecord.alamat = formData.alamat;
-        baseRecord.kelas = formData.kelas;
-        baseRecord.walikelas = formData.walikelas;
+        baseRecord.ttl = formData.ttl || '-';
+        baseRecord.alamat = formData.alamat || '-';
+        baseRecord.kelas = formData.kelas || '-';
+        baseRecord.walikelas = formData.walikelas || '-';
     } else if (role === 'Guru') {
         baseRecord.username = formData.nip;
-        baseRecord.password = formData.nip; // Default password NIP
+        baseRecord.password = formData.nip; // NIP is Username & Password
         baseRecord.nip = formData.nip;
         baseRecord.isWalikelas = Boolean(formData.isWalikelas);
         baseRecord.kelasWalikelas = formData.isWalikelas ? formData.kelasWalikelas : '-';
     } else if (role === 'Tendik') {
         baseRecord.username = formData.username;
         baseRecord.password = formData.password;
-        baseRecord.jabatan = formData.jabatan;
+        baseRecord.jabatan = formData.jabatan || 'Tenaga Kependidikan';
     }
 
     return baseRecord;
@@ -255,7 +278,7 @@ function buildAttendanceEntry(user, selfieBase64, geofenceStatus = {}) {
         jam: timeFormatted,
         status: 'Hadir',
         foto: selfieBase64,
-        insideGeofence: geofenceStatus.insideGeofence || true,
+        insideGeofence: geofenceStatus.insideGeofence !== undefined ? geofenceStatus.insideGeofence : true,
         distanceMeters: geofenceStatus.distanceMeters || 0
     };
 }
