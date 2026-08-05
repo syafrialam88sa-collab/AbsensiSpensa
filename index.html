@@ -89,6 +89,56 @@
         .leaflet-container {
             background: #0f172a !important;
         }
+
+        /* Light Mode Overrides */
+        body.light-mode {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+        }
+        body.light-mode .glass-panel {
+            background: rgba(255, 255, 255, 0.88) !important;
+            backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08) !important;
+        }
+        body.light-mode .glass-card {
+            background: rgba(241, 245, 249, 0.95) !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        }
+        body.light-mode input, 
+        body.light-mode select, 
+        body.light-mode textarea {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+        body.light-mode input::placeholder, 
+        body.light-mode textarea::placeholder {
+            color: #94a3b8 !important;
+        }
+        body.light-mode .text-white {
+            color: #0f172a !important;
+        }
+        body.light-mode .text-slate-400, 
+        body.light-mode .text-slate-300 {
+            color: #475569 !important;
+        }
+        body.light-mode .text-slate-100, 
+        body.light-mode .text-slate-200 {
+            color: #1e293b !important;
+        }
+        body.light-mode .bg-slate-900, 
+        body.light-mode .bg-slate-950 {
+            background-color: #e2e8f0 !important;
+        }
+        body.light-mode thead {
+            background-color: #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+        body.light-mode .border-slate-800, 
+        body.light-mode .border-slate-700 {
+            border-color: #cbd5e1 !important;
+        }
     </style>
 </head>
 <body class="min-h-screen bg-slate-950 font-sans text-slate-100 flex flex-col selection:bg-indigo-500 selection:text-white">
@@ -119,17 +169,24 @@
                 </div>
             </div>
             
-            <div id="userInfoHeader" class="hidden flex items-center space-x-4">
-                <div class="text-right hidden sm:block">
-                    <span id="headerUserName" class="block font-semibold text-sm text-slate-100">Nama User</span>
-                    <span id="headerUserRole" class="inline-block px-2.5 py-0.5 text-[10px] uppercase font-bold tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full">ROLE</span>
-                </div>
-                <div class="relative">
-                    <img id="headerUserAvatar" src="https://placehold.co/100x100/3b82f6/ffffff?text=U" class="w-11 h-11 rounded-2xl border-2 border-indigo-500/50 object-cover shadow-lg" alt="User Avatar">
-                </div>
-                <button onclick="logout()" class="p-2.5 bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 rounded-2xl border border-slate-700/60 transition group" title="Keluar / Logout">
-                    <i class="fa-solid fa-right-from-bracket text-lg group-hover:scale-110 transition"></i>
+            <div class="flex items-center space-x-3">
+                <!-- Theme Toggle Button (Siang / Malam) -->
+                <button onclick="toggleTheme()" id="themeToggleBtn" class="p-2.5 bg-slate-800/80 hover:bg-slate-700 text-amber-400 rounded-2xl border border-slate-700/60 transition group flex items-center justify-center" title="Ganti Mode Siang / Malam">
+                    <i id="themeIcon" class="fa-solid fa-sun text-lg group-hover:rotate-45 transition transform duration-300"></i>
                 </button>
+
+                <div id="userInfoHeader" class="hidden flex items-center space-x-4">
+                    <div class="text-right hidden sm:block">
+                        <span id="headerUserName" class="block font-semibold text-sm text-slate-100">Nama User</span>
+                        <span id="headerUserRole" class="inline-block px-2.5 py-0.5 text-[10px] uppercase font-bold tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full">ROLE</span>
+                    </div>
+                    <div class="relative">
+                        <img id="headerUserAvatar" src="https://placehold.co/100x100/3b82f6/ffffff?text=U" class="w-11 h-11 rounded-2xl border-2 border-indigo-500/50 object-cover shadow-lg" alt="User Avatar">
+                    </div>
+                    <button onclick="logout()" class="p-2.5 bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 rounded-2xl border border-slate-700/60 transition group" title="Keluar / Logout">
+                        <i class="fa-solid fa-right-from-bracket text-lg group-hover:scale-110 transition"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -401,22 +458,15 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-2">Hari Sekolah Aktif</label>
-                            <div class="flex flex-wrap gap-2 text-xs">
-                                <span class="px-3.5 py-1.5 bg-indigo-500/20 text-indigo-300 rounded-xl font-semibold border border-indigo-500/30">Senin</span>
-                                <span class="px-3.5 py-1.5 bg-indigo-500/20 text-indigo-300 rounded-xl font-semibold border border-indigo-500/30">Selasa</span>
-                                <span class="px-3.5 py-1.5 bg-indigo-500/20 text-indigo-300 rounded-xl font-semibold border border-indigo-500/30">Rabu</span>
-                                <span class="px-3.5 py-1.5 bg-indigo-500/20 text-indigo-300 rounded-xl font-semibold border border-indigo-500/30">Kamis</span>
-                                <span class="px-3.5 py-1.5 bg-indigo-500/20 text-indigo-300 rounded-xl font-semibold border border-indigo-500/30">Jumat</span>
-                                <span class="px-3.5 py-1.5 bg-indigo-500/20 text-indigo-300 rounded-xl font-semibold border border-indigo-500/30">Sabtu</span>
-                            </div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-2">Jumlah Waktu Sekolah Aktif (Hari)</label>
+                            <input type="number" id="settingJumlahHariSekolah" value="20" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Contoh: 20">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Hari Libur (Pilih Tanggal Kalender)</label>
                             <input type="date" id="settingHariLibur" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white">
                         </div>
                     </div>
-                    <button onclick="showToast('Pengaturan Jam & Hari Berhasil Disimpan', 'success')" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-2xl shadow">Simpan Pengaturan</button>
+                    <button onclick="saveJamHariSettings()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-2xl shadow">Simpan Pengaturan Waktu</button>
                 </div>
 
                 <!-- Submenu: Catatan Presensi -->
@@ -444,6 +494,7 @@
                                     <th class="p-3">Kelas / NIP</th>
                                     <th class="p-3">Status Kehadiran</th>
                                     <th class="p-3">Bukti Foto / Lampiran</th>
+                                    <th class="p-3 text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="catatanPresensiTable" class="divide-y divide-slate-800">
@@ -495,6 +546,7 @@
                                     <th class="p-3">Guru Pengampu</th>
                                     <th class="p-3">Siswa</th>
                                     <th class="p-3">Status Absen</th>
+                                    <th class="p-3 text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="presensiMapelAdminTable" class="divide-y divide-slate-800">
@@ -745,14 +797,29 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Lampiran Foto Bukti</label>
-                            <div class="flex items-center space-x-3">
-                                <button type="button" onclick="triggerCamAttachment('tiketPhotoContainer', 'tiketPhotoPreview')" class="px-3.5 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 text-xs font-bold rounded-xl flex items-center space-x-2 transition">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <button type="button" onclick="startAttachmentCamera('tiketCamContainer', 'tiketVideo', 'tiketPhotoContainer', 'tiketPhotoPreview', 'tiketPhotoStatus')" class="px-3.5 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 text-xs font-bold rounded-xl flex items-center space-x-2 transition">
                                     <i class="fa-solid fa-camera"></i> <span>Buka Kamera Foto</span>
                                 </button>
                                 <span id="tiketPhotoStatus" class="text-[10px] text-slate-400">Belum ada foto</span>
                             </div>
+
+                            <!-- Live Viewfinder for Ticket Lampiran -->
+                            <div id="tiketCamContainer" class="hidden relative bg-slate-950 rounded-2xl overflow-hidden aspect-video border-2 border-amber-500/40 mb-3 group shadow-inner">
+                                <video id="tiketVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+                                <canvas id="tiketCanvas" class="hidden"></canvas>
+                                <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 z-20">
+                                    <button type="button" onclick="snapAttachmentPhoto('tiketVideo', 'tiketCanvas', 'tiketCamContainer', 'tiketPhotoContainer', 'tiketPhotoPreview', 'tiketPhotoStatus')" class="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+                                        <i class="fa-solid fa-circle-dot text-sm animate-pulse"></i> <span>Jepret Foto Lampiran</span>
+                                    </button>
+                                    <button type="button" onclick="closeAttachmentCamera('tiketCamContainer', 'tiketVideo')" class="px-3 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl transition">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+
                             <div id="tiketPhotoContainer" class="hidden mt-2">
-                                <img id="tiketPhotoPreview" class="w-24 h-24 object-cover rounded-xl border border-slate-700">
+                                <img id="tiketPhotoPreview" class="w-24 h-24 object-cover rounded-xl border border-slate-700 shadow-md">
                             </div>
                         </div>
 
@@ -916,14 +983,29 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Dokumentasi Foto Kejadian</label>
-                            <div class="flex items-center space-x-3">
-                                <button type="button" onclick="triggerCamAttachment('laporPhotoContainer', 'laporPhotoPreview')" class="px-3.5 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-bold rounded-xl flex items-center space-x-2 transition">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <button type="button" onclick="startAttachmentCamera('laporCamContainer', 'laporVideo', 'laporPhotoContainer', 'laporPhotoPreview', 'laporPhotoStatus')" class="px-3.5 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-bold rounded-xl flex items-center space-x-2 transition">
                                     <i class="fa-solid fa-camera"></i> <span>Aktifkan Kamera Lapangan</span>
                                 </button>
                                 <span id="laporPhotoStatus" class="text-[10px] text-slate-400">Foto belum diambil</span>
                             </div>
+
+                            <!-- Live Viewfinder for Lapor Kejadian -->
+                            <div id="laporCamContainer" class="hidden relative bg-slate-950 rounded-2xl overflow-hidden aspect-video border-2 border-rose-500/40 mb-3 group shadow-inner">
+                                <video id="laporVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+                                <canvas id="laporCanvas" class="hidden"></canvas>
+                                <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 z-20">
+                                    <button type="button" onclick="snapAttachmentPhoto('laporVideo', 'laporCanvas', 'laporCamContainer', 'laporPhotoContainer', 'laporPhotoPreview', 'laporPhotoStatus')" class="flex-1 py-2.5 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold text-xs rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+                                        <i class="fa-solid fa-circle-dot text-sm animate-pulse"></i> <span>Jepret Foto Kejadian</span>
+                                    </button>
+                                    <button type="button" onclick="closeAttachmentCamera('laporCamContainer', 'laporVideo')" class="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl transition">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+
                             <div id="laporPhotoContainer" class="hidden mt-2">
-                                <img id="laporPhotoPreview" class="w-full h-32 object-cover rounded-xl border border-slate-700">
+                                <img id="laporPhotoPreview" class="w-full h-32 object-cover rounded-xl border border-slate-700 shadow-md">
                             </div>
                         </div>
 
@@ -946,993 +1028,113 @@
 
 <script>
 /* ==========================================================================
-   DATABASES & INITIAL MOCK DATA
+   THEME MODE (SIANG / MALAM) & LIVE ATTACHMENT CAMERA LOGIC
    ========================================================================== */
-let currentUser = null;
-let mediaStream = null;
-let activeCamTarget = null;
-let leafletMap = null;
-let radiusCircle = null;
+let isDarkMode = true;
 
-// Mock Local Databases
-let usersDB = [
-    { id: '1', role: 'Admin', username: 'Gacor', password: 'spensahalsel', nama: 'Administrator IT', foto: 'https://placehold.co/100x100/4f46e5/ffffff?text=Admin' },
-    { id: '2', role: 'Siswa', username: '1001', password: '1001', nis: '1001', nama: 'Muhammad Rizky', ttl: 'Ternate, 12 Mei 2010', alamat: 'Jl. Merdeka No. 12', kelas: 'VII-A', walikelas: 'Drs. Ahmad Dahlan, M.Pd', foto: 'https://placehold.co/100x100/10b981/ffffff?text=Siswa1' },
-    { id: '3', role: 'Siswa', username: '1002', password: '1002', nis: '1002', nama: 'Siti Aminah', ttl: 'Labuha, 20 Agustus 2010', alamat: 'Jl. Pendidikan No. 4', kelas: 'VII-A', walikelas: 'Drs. Ahmad Dahlan, M.Pd', foto: 'https://placehold.co/100x100/f59e0b/ffffff?text=Siswa2' },
-    { id: '4', role: 'Guru', username: '19850101', password: '19850101', nip: '19850101', nama: 'Drs. Ahmad Dahlan, M.Pd', isWalikelas: true, kelasWalikelas: 'VII-A', foto: 'https://placehold.co/100x100/8b5cf6/ffffff?text=Guru1' },
-    { id: '5', role: 'Guru', username: '19900202', password: '19900202', nip: '19900202', nama: 'Budi Santoso, S.Pd', isWalikelas: false, kelasWalikelas: '-', foto: 'https://placehold.co/100x100/06b6d4/ffffff?text=Guru2' },
-    { id: '6', role: 'Tendik', username: 'Tendik', password: 'tendik123', nama: 'Rina Kurnia, S.Kom', jabatan: 'Staf TU / Admin Sekolah', foto: 'https://placehold.co/100x100/ec4899/ffffff?text=Tendik' }
-];
+function toggleTheme() {
+    isDarkMode = !isDarkMode;
+    const body = document.body;
+    const themeIcon = document.getElementById('themeIcon');
+    const themeBtn = document.getElementById('themeToggleBtn');
 
-let attendanceRecordsDB = [
-    { id: 'att-1', userId: '2', userName: 'Muhammad Rizky', role: 'Siswa', kelas: 'VII-A', tanggal: '2026-08-05', jam: '06:55:12', status: 'Hadir', foto: 'https://placehold.co/100x100/10b981/ffffff?text=Hadir' },
-    { id: 'att-2', userId: '4', userName: 'Drs. Ahmad Dahlan, M.Pd', role: 'Guru', kelas: 'VII-A', tanggal: '2026-08-05', jam: '07:05:00', status: 'Hadir', foto: 'https://placehold.co/100x100/10b981/ffffff?text=Hadir' }
-];
-
-let ticketsDB = [
-    { id: 'tkt-1', userId: '3', userName: 'Siti Aminah', userRole: 'Siswa', kelas: 'VII-A', jenis: 'Sakit', tanggalAwal: '2026-08-05', tanggalAkhir: '2026-08-06', keterangan: 'Demam dan Flu Tinggi', lampiran: 'https://placehold.co/100x100/3b82f6/ffffff?text=Surat+Dokter', status: 'Approved' }
-];
-
-let mapelAttendanceDB = [];
-
-let incidentReportsDB = [
-    { id: 'rep-1', pelaporName: 'Muhammad Rizky', pelaporRole: 'Siswa', kronologi: 'Terlihat 2 siswa meloncat pagar belakang jam 09:30', foto: 'https://placehold.co/200x200/ef4444/ffffff?text=Bukti+Foto', waktu: '2026-08-05 09:35' }
-];
-
-let schoolSettings = {
-    jamMasuk: '07:15',
-    jamPulang: '14:00',
-    radiusMeter: 100,
-    lat: -0.7893,
-    lng: 127.3820
-};
-
-/* ==========================================================================
-   INITIALIZATION & REALTIME CLOCK ENGINE
-   ========================================================================== */
-window.onload = function() {
-    updateClock();
-    setInterval(updateClock, 1000);
-    renderRegForm();
-    renderCatatanPresensi();
-    renderPresensiMapelAdmin();
-    renderReportsAdmin();
-};
-
-function updateClock() {
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
-    const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    
-    const clockEl = document.getElementById('userRealtimeClock');
-    const dateEl = document.getElementById('userDateDisplay');
-    if (clockEl) clockEl.textContent = timeStr;
-    if (dateEl) dateEl.innerHTML = `<i class="fa-regular fa-calendar-days mr-2 text-indigo-400"></i> ${dateStr}`;
-}
-
-/* ==========================================================================
-   AUTHENTICATION LOGIC
-   ========================================================================== */
-function fillLogin(u, p) {
-    document.getElementById('loginUsername').value = u;
-    document.getElementById('loginPassword').value = p;
-}
-
-function handleLogin(e) {
-    e.preventDefault();
-    const usernameInput = document.getElementById('loginUsername').value.trim();
-    const passwordInput = document.getElementById('loginPassword').value.trim();
-
-    const foundUser = usersDB.find(u => u.username === usernameInput && u.password === passwordInput);
-
-    if (foundUser) {
-        currentUser = foundUser;
-        showToast(`Selamat Datang, ${currentUser.nama}!`, 'success');
-        setupUserInterface();
-    } else {
-        showToast('Username atau Password Salah!', 'error');
-    }
-}
-
-function logout() {
-    currentUser = null;
-    document.getElementById('loginSection').classList.remove('hidden');
-    document.getElementById('adminView').classList.add('hidden');
-    document.getElementById('userDashboardView').classList.add('hidden');
-    document.getElementById('userInfoHeader').classList.add('hidden');
-    showToast('Anda telah keluar dari sistem.', 'info');
-}
-
-function setupUserInterface() {
-    document.getElementById('loginSection').classList.add('hidden');
-    document.getElementById('userInfoHeader').classList.remove('hidden');
-    
-    document.getElementById('headerUserName').textContent = currentUser.nama;
-    document.getElementById('headerUserRole').textContent = currentUser.role;
-    document.getElementById('headerUserAvatar').src = currentUser.foto || 'https://placehold.co/100x100/3b82f6/ffffff?text=User';
-
-    if (currentUser.role === 'Admin') {
-        document.getElementById('adminView').classList.remove('hidden');
-        document.getElementById('userDashboardView').classList.add('hidden');
-        updateAdminDashboardStats();
-        initLeafletMap();
-    } else {
-        document.getElementById('adminView').classList.add('hidden');
-        document.getElementById('userDashboardView').classList.remove('hidden');
-        document.getElementById('userGreetingName').textContent = currentUser.nama;
-
-        // Role Specific Action Buttons Configuration
-        const btnApprove = document.getElementById('btnApproveWalikelas');
-        const btnMapel = document.getElementById('btnPresensiMapelGuru');
-        const btnLapor = document.getElementById('btnLaporModal');
-        const btnLaporText = document.getElementById('btnLaporModalText');
-        
-        btnApprove.classList.add('hidden');
-        btnMapel.classList.add('hidden');
-
-        // Sembunyikan Tombol Lapor khusus untuk Role Tendik
-        if (currentUser.role === 'Tendik') {
-            btnLapor.classList.add('hidden');
-        } else {
-            btnLapor.classList.remove('hidden');
-            if (currentUser.role === 'Guru') {
-                if (btnLaporText) btnLaporText.textContent = 'Menu Laporan';
-            } else {
-                if (btnLaporText) btnLaporText.textContent = 'Lapor Kejadian';
-            }
+    if (!isDarkMode) {
+        body.classList.add('light-mode');
+        if (themeIcon) {
+            themeIcon.className = "fa-solid fa-moon text-lg text-indigo-600 group-hover:-rotate-12 transition transform duration-300";
         }
-
-        if (currentUser.role === 'Guru') {
-            btnMapel.classList.remove('hidden');
-            if (currentUser.isWalikelas) {
-                btnApprove.classList.remove('hidden');
-            }
+        if (themeBtn) {
+            themeBtn.title = "Ganti Ke Mode Malam";
+            themeBtn.classList.remove('bg-slate-800/80', 'text-amber-400');
+            themeBtn.classList.add('bg-slate-200', 'text-indigo-600');
         }
-
-        updateUserStats();
-    }
-}
-
-/* ==========================================================================
-   ADMIN MANAGEMENT FUNCTIONS
-   ========================================================================== */
-function switchAdminTab(tabName) {
-    document.querySelectorAll('.adminTabBtn').forEach(btn => {
-        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
-        btn.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-slate-800/60');
-    });
-    
-    const activeBtn = document.getElementById(`tabBtn-${tabName}`);
-    activeBtn.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-slate-800/60');
-    activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
-
-    document.getElementById('adminTab-dashboard').classList.add('hidden');
-    document.getElementById('adminTab-registrasi').classList.add('hidden');
-    document.getElementById('adminTab-pengaturan').classList.add('hidden');
-    document.getElementById('adminTab-laporan').classList.add('hidden');
-
-    document.getElementById(`adminTab-${tabName}`).classList.remove('hidden');
-
-    if (tabName === 'dashboard') updateAdminDashboardStats();
-    if (tabName === 'registrasi') renderRegisteredUsersTable();
-}
-
-function updateAdminDashboardStats() {
-    const totalSiswa = usersDB.filter(u => u.role === 'Siswa').length;
-    const hadirSiswa = attendanceRecordsDB.filter(a => a.role === 'Siswa' && a.status === 'Hadir').length;
-    const izinSiswa = ticketsDB.filter(t => t.userRole === 'Siswa' && t.jenis === 'Izin' && t.status === 'Approved').length;
-    const sakitSiswa = ticketsDB.filter(t => t.userRole === 'Siswa' && t.jenis === 'Sakit' && t.status === 'Approved').length;
-    const selisihSiswa = totalSiswa - (hadirSiswa + izinSiswa + sakitSiswa);
-
-    document.getElementById('statTotalSiswa').textContent = totalSiswa;
-    document.getElementById('statHadirSiswa').textContent = hadirSiswa;
-    document.getElementById('statIzinSiswa').textContent = izinSiswa;
-    document.getElementById('statSakitSiswa').textContent = sakitSakitSiswa = sakitSiswa;
-    document.getElementById('statSelisihSiswa').textContent = Math.max(0, selisihSiswa);
-
-    const totalGuru = usersDB.filter(u => u.role === 'Guru').length;
-    const hadirGuru = attendanceRecordsDB.filter(a => a.role === 'Guru' && a.status === 'Hadir').length;
-    const izinGuru = ticketsDB.filter(t => t.userRole === 'Guru' && t.jenis === 'Izin' && t.status === 'Approved').length;
-    const sakitGuru = ticketsDB.filter(t => t.userRole === 'Guru' && t.jenis === 'Sakit' && t.status === 'Approved').length;
-    const tugasGuru = ticketsDB.filter(t => t.userRole === 'Guru' && t.jenis === 'Tugas' && t.status === 'Approved').length;
-    const selisihGuru = totalGuru - (hadirGuru + izinGuru + sakitGuru + tugasGuru);
-
-    document.getElementById('statTotalGuru').textContent = totalGuru;
-    document.getElementById('statHadirGuru').textContent = hadirGuru;
-    document.getElementById('statIzinGuru').textContent = izinGuru;
-    document.getElementById('statSakitGuru').textContent = sakitGuru;
-    document.getElementById('statTugasGuru').textContent = tugasGuru;
-    document.getElementById('statSelisihGuru').textContent = Math.max(0, selisihGuru);
-
-    document.getElementById('statTotalKelas').textContent = 12;
-    document.getElementById('statKelasKBM').textContent = 10;
-    document.getElementById('statKelasNonKBM').textContent = 2;
-}
-
-/* ==========================================================================
-   REGISTRATION FORM RENDERING & CREATION
-   ========================================================================== */
-function renderRegForm() {
-    const role = document.getElementById('regRoleSelect').value;
-    const container = document.getElementById('regFormContainer');
-
-    if (role === 'Siswa') {
-        container.innerHTML = `
-            <div>
-                <label class="block text-xs font-semibold text-slate-400 mb-1">Upload Foto Siswa</label>
-                <input type="file" id="regFoto" accept="image/*" class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-300">
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Siswa</label>
-                    <input type="text" id="regNama" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white" placeholder="Nama Lengkap">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">NIS (Nomor Induk Siswa)</label>
-                    <input type="text" id="regNis" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white" placeholder="Nomor NIS">
-                </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Tempat, Tanggal Lahir</label>
-                    <input type="text" id="regTtl" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white" placeholder="Ternate, 10-05-2010">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Alamat</label>
-                    <input type="text" id="regAlamat" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white" placeholder="Alamat Tempat Tinggal">
-                </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Kelas</label>
-                    <input type="text" id="regKelas" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white" placeholder="Contoh: VII-A">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Walikelas</label>
-                    <input type="text" id="regWalikelas" value="Drs. Ahmad Dahlan, M.Pd" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white">
-                </div>
-            </div>
-        `;
-    } else if (role === 'Guru') {
-        container.innerHTML = `
-            <div>
-                <label class="block text-xs font-semibold text-slate-400 mb-1">Upload Foto Guru</label>
-                <input type="file" id="regFoto" accept="image/*" class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-300">
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Guru</label>
-                    <input type="text" id="regNama" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white" placeholder="Nama & Gelar">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">NIP Guru</label>
-                    <input type="text" id="regNip" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white" placeholder="Nomor NIP">
-                </div>
-            </div>
-            <div class="p-3.5 bg-slate-900/90 border border-slate-800 rounded-xl flex items-center justify-between">
-                <div>
-                    <span class="block text-xs font-bold text-white">Aktifkan Sebagai Walikelas</span>
-                    <span class="text-[10px] text-slate-400">Guru ini memiliki akses Approve Izin Siswa</span>
-                </div>
-                <input type="checkbox" id="regIsWalikelas" onchange="toggleWalikelasClassInput(this)" class="w-5 h-5 text-indigo-600 rounded bg-slate-800 border-slate-700">
-            </div>
-            <div id="walikelasClassContainer" class="hidden">
-                <label class="block text-xs font-semibold text-slate-400 mb-1">Kelas Walikelas Yang Diampu</label>
-                <input type="text" id="regKelasWalikelas" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white" placeholder="Contoh: VII-A">
-            </div>
-        `;
-    } else if (role === 'Tendik') {
-        container.innerHTML = `
-            <div>
-                <label class="block text-xs font-semibold text-slate-400 mb-1">Upload Foto Tendik</label>
-                <input type="file" id="regFoto" accept="image/*" class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-300">
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap Tendik</label>
-                    <input type="text" id="regNama" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white" placeholder="Nama Lengkap">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Username Tendik</label>
-                    <input type="text" id="regTendikUsername" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white" placeholder="Username (misal: Tendik2)">
-                </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Password</label>
-                    <input type="password" id="regTendikPassword" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white" placeholder="Masukkan Password">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Jabatan / Unit Kerja</label>
-                    <input type="text" id="regJabatan" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white" placeholder="Staf TU / Admin Perpustakaan">
-                </div>
-            </div>
-        `;
-    }
-}
-
-function toggleWalikelasClassInput(chk) {
-    document.getElementById('walikelasClassContainer').classList.toggle('hidden', !chk.checked);
-}
-
-function handleUserRegistration(e) {
-    e.preventDefault();
-    const role = document.getElementById('regRoleSelect').value;
-    const nama = document.getElementById('regNama').value;
-    const fileInput = document.getElementById('regFoto');
-
-    const saveUserData = (fotoDataUrl) => {
-        let newUser = { 
-            id: Date.now().toString(), 
-            role, 
-            nama, 
-            foto: fotoDataUrl || ('https://placehold.co/100x100/3b82f6/ffffff?text=' + role) 
-        };
-
-        if (role === 'Siswa') {
-            const nis = document.getElementById('regNis').value;
-            newUser.username = nis;
-            newUser.password = nis;
-            newUser.nis = nis;
-            newUser.ttl = document.getElementById('regTtl').value;
-            newUser.alamat = document.getElementById('regAlamat').value;
-            newUser.kelas = document.getElementById('regKelas').value;
-            newUser.walikelas = document.getElementById('regWalikelas').value;
-        } else if (role === 'Guru') {
-            const nip = document.getElementById('regNip').value;
-            newUser.username = nip;
-            newUser.password = nip;
-            newUser.nip = nip;
-            newUser.isWalikelas = document.getElementById('regIsWalikelas').checked;
-            newUser.kelasWalikelas = newUser.isWalikelas ? document.getElementById('regKelasWalikelas').value : '-';
-        } else if (role === 'Tendik') {
-            const username = document.getElementById('regTendikUsername').value;
-            const pass = document.getElementById('regTendikPassword').value;
-            newUser.username = username;
-            newUser.password = pass;
-            newUser.jabatan = document.getElementById('regJabatan').value;
-        }
-
-        usersDB.push(newUser);
-        showToast(`Akun ${role} (${nama}) Berhasil Didaftarkan!`, 'success');
-        renderRegisteredUsersTable();
-        updateAdminDashboardStats();
-        document.getElementById('regForm').reset();
-        renderRegForm();
-    };
-
-    if (fileInput && fileInput.files && fileInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            saveUserData(event.target.result);
-        };
-        reader.readAsDataURL(fileInput.files[0]);
+        showToast('Mode Siang (Light Mode) Diaktifkan', 'info');
     } else {
-        saveUserData(null);
+        body.classList.remove('light-mode');
+        if (themeIcon) {
+            themeIcon.className = "fa-solid fa-sun text-lg text-amber-400 group-hover:rotate-45 transition transform duration-300";
+        }
+        if (themeBtn) {
+            themeBtn.title = "Ganti Ke Mode Siang";
+            themeBtn.classList.remove('bg-slate-200', 'text-indigo-600');
+            themeBtn.classList.add('bg-slate-800/80', 'text-amber-400');
+        }
+        showToast('Mode Malam (Dark Mode) Diaktifkan', 'info');
     }
 }
 
-function renderRegisteredUsersTable() {
-    const tbody = document.getElementById('registeredUsersTable');
-    tbody.innerHTML = '';
+let attachmentMediaStream = null;
 
-    usersDB.forEach(user => {
-        let details = '-';
-        let idVal = user.username;
+function startAttachmentCamera(camContainerId, videoId, photoContainerId, previewImgId, statusId) {
+    const container = document.getElementById(camContainerId);
+    const video = document.getElementById(videoId);
+    const statusElem = document.getElementById(statusId);
 
-        if (user.role === 'Siswa') details = `Kelas: ${user.kelas} | Walikelas: ${user.walikelas}`;
-        if (user.role === 'Guru') details = user.isWalikelas ? `Walikelas ${user.kelasWalikelas}` : 'Guru Mata Pelajaran';
-        if (user.role === 'Tendik') details = `Jabatan: ${user.jabatan}`;
+    container.classList.remove('hidden');
+    if (statusElem) statusElem.textContent = "Mengakses Kamera...";
 
-        tbody.innerHTML += `
-            <tr class="hover:bg-slate-800/40 transition">
-                <td class="p-3.5"><img src="${user.foto}" class="w-9 h-9 rounded-xl border border-slate-700 object-cover"></td>
-                <td class="p-3.5 font-bold text-white">${user.nama}</td>
-                <td class="p-3.5"><span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase ${user.role==='Admin'?'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30':user.role==='Guru'?'bg-purple-500/20 text-purple-300 border border-purple-500/30':user.role==='Siswa'?'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30':'bg-pink-500/20 text-pink-300 border border-pink-500/30'}">${user.role}</span></td>
-                <td class="p-3.5 font-mono font-semibold text-slate-300">${idVal}</td>
-                <td class="p-3.5 text-slate-400">${details}</td>
-                <td class="p-3.5 text-center">
-                    ${user.username !== 'Gacor' ? `<button onclick="deleteUser('${user.id}')" class="p-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 rounded-xl transition border border-rose-500/30"><i class="fa-solid fa-trash"></i></button>` : '<span class="text-slate-600">-</span>'}
-                </td>
-            </tr>
-        `;
-    });
-}
-
-function deleteUser(id) {
-    usersDB = usersDB.filter(u => u.id !== id);
-    showToast('Akun berhasil dihapus', 'info');
-    renderRegisteredUsersTable();
-    updateAdminDashboardStats();
-}
-
-/* ==========================================================================
-   ADMIN SETTINGS SUBMENU LOGIC & MAP GEOFENCE
-   ========================================================================== */
-function switchSettingsSubtab(subtab) {
-    document.querySelectorAll('.settingSubTabBtn').forEach(b => {
-        b.classList.remove('border-indigo-500', 'font-bold', 'text-indigo-400');
-        b.classList.add('border-transparent', 'font-medium', 'text-slate-400');
-    });
-
-    const activeB = document.getElementById(`subtabBtn-${subtab}`);
-    activeB.classList.remove('border-transparent', 'font-medium', 'text-slate-400');
-    activeB.classList.add('border-indigo-500', 'font-bold', 'text-indigo-400');
-
-    document.getElementById('settingSub-jamHari').classList.add('hidden');
-    document.getElementById('settingSub-catatan').classList.add('hidden');
-    document.getElementById('settingSub-presensiMapel').classList.add('hidden');
-    document.getElementById('settingSub-lokasi').classList.add('hidden');
-
-    document.getElementById(`settingSub-${subtab}`).classList.remove('hidden');
-
-    if (subtab === 'catatan') renderCatatanPresensi();
-    if (subtab === 'presensiMapel') renderPresensiMapelAdmin();
-    if (subtab === 'lokasi') {
-        setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(); }, 200);
-    }
-}
-
-function initLeafletMap() {
-    if (leafletMap) return;
-    
-    leafletMap = L.map('map').setView([schoolSettings.lat, schoolSettings.lng], 17);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap'
-    }).addTo(leafletMap);
-
-    L.marker([schoolSettings.lat, schoolSettings.lng]).addTo(leafletMap)
-        .bindPopup("Gedung Utama SPENSA (Pusat Absen)")
-        .openPopup();
-
-    radiusCircle = L.circle([schoolSettings.lat, schoolSettings.lng], {
-        color: '#6366f1',
-        fillColor: '#818cf8',
-        fillOpacity: 0.35,
-        radius: schoolSettings.radiusMeter
-    }).addTo(leafletMap);
-}
-
-function saveLocationSettings() {
-    const r = parseInt(document.getElementById('settingRadiusMeter').value);
-    const lat = parseFloat(document.getElementById('settingLat').value);
-    const lng = parseFloat(document.getElementById('settingLng').value);
-
-    schoolSettings.radiusMeter = r;
-    schoolSettings.lat = lat;
-    schoolSettings.lng = lng;
-
-    if (radiusCircle && leafletMap) {
-        leafletMap.setView([lat, lng], 17);
-        radiusCircle.setLatLng([lat, lng]);
-        radiusCircle.setRadius(r);
-    }
-
-    showToast(`Pengaturan Lokasi Radius Absen (${r} Meter) Disimpan!`, 'success');
-}
-
-function renderCatatanPresensi() {
-    const tbody = document.getElementById('catatanPresensiTable');
-    tbody.innerHTML = '';
-
-    attendanceRecordsDB.forEach(rec => {
-        tbody.innerHTML += `
-            <tr class="hover:bg-slate-800/40">
-                <td class="p-3">${rec.tanggal} ${rec.jam}</td>
-                <td class="p-3 font-bold text-white">${rec.userName}</td>
-                <td class="p-3">${rec.role}</td>
-                <td class="p-3">${rec.kelas || '-'}</td>
-                <td class="p-3"><span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 rounded-lg font-bold border border-emerald-500/30">${rec.status}</span></td>
-                <td class="p-3"><img src="${rec.foto}" class="w-8 h-8 rounded-lg border border-slate-700 object-cover"></td>
-            </tr>
-        `;
-    });
-
-    ticketsDB.forEach(tkt => {
-        tbody.innerHTML += `
-            <tr class="hover:bg-slate-800/40">
-                <td class="p-3">${tkt.tanggalAwal} s/d ${tkt.tanggalAkhir}</td>
-                <td class="p-3 font-bold text-white">${tkt.userName}</td>
-                <td class="p-3">${tkt.userRole}</td>
-                <td class="p-3">${tkt.kelas || '-'}</td>
-                <td class="p-3"><span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 rounded-lg font-bold border border-amber-500/30">${tkt.jenis} (${tkt.status})</span></td>
-                <td class="p-3"><a href="${tkt.lampiran}" target="_blank" class="text-indigo-400 underline">Lihat Foto</a></td>
-            </tr>
-        `;
-    });
-}
-
-function renderPresensiMapelAdmin() {
-    const tbody = document.getElementById('presensiMapelAdminTable');
-    tbody.innerHTML = '';
-
-    if (mapelAttendanceDB.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Belum ada rekam presensi mapel diinput guru.</td></tr>`;
-        return;
-    }
-
-    mapelAttendanceDB.forEach(m => {
-        tbody.innerHTML += `
-            <tr class="hover:bg-slate-800/40">
-                <td class="p-3">${m.waktu}</td>
-                <td class="p-3 font-bold text-white">${m.mapel}</td>
-                <td class="p-3">${m.kelas}</td>
-                <td class="p-3">${m.guruName}</td>
-                <td class="p-3">${m.siswaName}</td>
-                <td class="p-3"><span class="px-2.5 py-1 rounded-lg font-bold ${m.status==='Hadir'?'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30':m.status==='Alpa'?'bg-rose-500/20 text-rose-300 border border-rose-500/30':'bg-amber-500/20 text-amber-300 border border-amber-500/30'}">${m.status}</span></td>
-            </tr>
-        `;
-    });
-}
-
-function downloadPresensiMapelCSV() {
-    let csvContent = "data:text/csv;charset=utf-8,Waktu,Mapel,Kelas,Guru,Siswa,Status\n";
-    mapelAttendanceDB.forEach(m => {
-        csvContent += `"${m.waktu}","${m.mapel}","${m.kelas}","${m.guruName}","${m.siswaName}","${m.status}"\n`;
-    });
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "Rekap_Presensi_Mapel_SPENSA.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-function renderReportsAdmin() {
-    const tbody = document.getElementById('laporanAdminTable');
-    tbody.innerHTML = '';
-
-    incidentReportsDB.forEach(r => {
-        tbody.innerHTML += `
-            <tr class="hover:bg-slate-800/40">
-                <td class="p-3">${r.waktu}</td>
-                <td class="p-3 font-bold text-white">${r.pelaporName}</td>
-                <td class="p-3">${r.pelaporRole}</td>
-                <td class="p-3 text-slate-300">${r.kronologi}</td>
-                <td class="p-3"><img src="${r.foto}" class="w-10 h-10 object-cover rounded-lg border border-slate-700"></td>
-            </tr>
-        `;
-    });
-}
-
-/* ==========================================================================
-   USER DASHBOARD & MODALS LOGIC
-   ========================================================================== */
-function updateUserStats() {
-    const userAtt = attendanceRecordsDB.filter(a => a.userId === currentUser.id);
-    const userTkts = ticketsDB.filter(t => t.userId === currentUser.id && t.status === 'Approved');
-
-    document.getElementById('userStatHari').textContent = 20;
-    document.getElementById('userStatHadir').textContent = userAtt.filter(a => a.status === 'Hadir').length;
-    document.getElementById('userStatIzin').textContent = userTkts.filter(t => t.jenis === 'Izin').length;
-    document.getElementById('userStatSakit').textContent = userTkts.filter(t => t.jenis === 'Sakit').length;
-    document.getElementById('userStatAlpa').textContent = 0;
-}
-
-// 1. ABSEN CAMERA MODAL LOGIC
-function openAbsenModal() {
-    document.getElementById('modalAbsen').classList.remove('hidden');
-    const now = new Date();
-    document.getElementById('absenInfoTanggal').textContent = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    document.getElementById('absenInfoJam').textContent = now.toLocaleTimeString('id-ID');
-    document.getElementById('absenInfoRadius').textContent = `✓ Dalam Radius (${schoolSettings.radiusMeter}m)`;
-
-    document.getElementById('webcamVideo').classList.remove('hidden');
-    document.getElementById('capturedImagePreview').classList.add('hidden');
-
-    startWebcam('webcamVideo');
-}
-
-function startWebcam(videoElemId) {
-    const video = document.getElementById(videoElemId);
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .catch(() => navigator.mediaDevices.getUserMedia({ video: true }))
             .then(stream => {
-                mediaStream = stream;
+                attachmentMediaStream = stream;
                 video.srcObject = stream;
+                if (statusElem) statusElem.textContent = "Kamera Siap Jepret";
             })
             .catch(err => {
-                showToast('Kamera tidak terdeteksi. Menggunakan Simulasi Snapshot Kamera.', 'info');
+                showToast('Kamera tidak terdeteksi. Silakan coba kembali.', 'error');
+                if (statusElem) statusElem.textContent = "Gagal mengakses kamera";
             });
     }
 }
 
-function stopWebcam() {
-    if (mediaStream) {
-        mediaStream.getTracks().forEach(track => track.stop());
-        mediaStream = null;
-    }
-}
-
-function captureSelfie() {
-    const video = document.getElementById('webcamVideo');
-    const canvas = document.getElementById('webcamCanvas');
+function snapAttachmentPhoto(videoId, canvasId, camContainerId, photoContainerId, previewImgId, statusId) {
+    const video = document.getElementById(videoId);
+    const canvas = document.getElementById(canvasId);
+    const photoContainer = document.getElementById(photoContainerId);
+    const previewImg = document.getElementById(previewImgId);
+    const statusElem = document.getElementById(statusId);
 
     canvas.width = 320;
     canvas.height = 240;
     const ctx = canvas.getContext('2d');
 
-    if (mediaStream && video.srcObject) {
+    if (attachmentMediaStream && video.srcObject) {
         ctx.drawImage(video, 0, 0, 320, 240);
     } else {
-        ctx.fillStyle = '#4f46e5';
-        ctx.fillRect(0,0,320,240);
+        ctx.fillStyle = '#6366f1';
+        ctx.fillRect(0, 0, 320, 240);
         ctx.fillStyle = '#ffffff';
-        ctx.font = '16px sans-serif';
-        ctx.fillText('Selfie Presensi SPENSA', 60, 120);
+        ctx.font = '14px sans-serif';
+        ctx.fillText('Foto Dokumen Bukti', 60, 120);
     }
 
     const dataUrl = canvas.toDataURL('image/png');
-    
-    // Auto update avatar di pojok kanan atas untuk Siswa, Guru & Tendik
-    if (currentUser) {
-        currentUser.foto = dataUrl;
-        const avatarElem = document.getElementById('headerUserAvatar');
-        if (avatarElem) avatarElem.src = dataUrl;
-        const dbUser = usersDB.find(u => u.id === currentUser.id);
-        if (dbUser) dbUser.foto = dataUrl;
+    previewImg.src = dataUrl;
+    photoContainer.classList.remove('hidden');
+    if (statusElem) statusElem.textContent = "✓ Foto berhasil diambil!";
+
+    closeAttachmentCamera(camContainerId, videoId);
+    showToast('Foto berhasil ditangkap langsung dari kamera!', 'success');
+}
+
+function closeAttachmentCamera(camContainerId, videoId) {
+    const container = document.getElementById(camContainerId);
+    if (container) container.classList.add('hidden');
+
+    if (attachmentMediaStream) {
+        attachmentMediaStream.getTracks().forEach(track => track.stop());
+        attachmentMediaStream = null;
     }
-
-    const now = new Date();
-    attendanceRecordsDB.push({
-        id: 'att-' + Date.now(),
-        userId: currentUser.id,
-        userName: currentUser.nama,
-        role: currentUser.role,
-        kelas: currentUser.kelas || currentUser.kelasWalikelas || '-',
-        tanggal: now.toISOString().split('T')[0],
-        jam: now.toLocaleTimeString('id-ID'),
-        status: 'Hadir',
-        foto: dataUrl
-    });
-
-    stopWebcam();
-    closeModal('modalAbsen');
-    showToast('Presensi Kehadiran Berhasil Terekam & Foto Profil Diperbarui!', 'success');
-    updateUserStats();
-}
-
-// 2. TIKET MODAL LOGIC
-function openTiketModal() {
-    document.getElementById('modalTiket').classList.remove('hidden');
-    
-    // Customization based on user role:
-    // Siswa ONLY has Izin and Sakit
-    // Guru / Tendik has Izin, Sakit, and Tugas
-    const selectJenis = document.getElementById('tiketJenis');
-    if (currentUser && currentUser.role === 'Siswa') {
-        selectJenis.innerHTML = `
-            <option value="Izin">Izin</option>
-            <option value="Sakit">Sakit</option>
-        `;
-    } else {
-        selectJenis.innerHTML = `
-            <option value="Izin">Izin</option>
-            <option value="Sakit">Sakit</option>
-            <option value="Tugas">Tugas Luar / Dinas</option>
-        `;
-    }
-
-    renderUserTickets();
-}
-
-function handleTiketSubmission(e) {
-    e.preventDefault();
-    const jenis = document.getElementById('tiketJenis').value;
-    const awal = document.getElementById('tiketAwal').value;
-    const akhir = document.getElementById('tiketAkhir').value;
-    const ket = document.getElementById('tiketKeterangan').value;
-    const img = document.getElementById('tiketPhotoPreview').src || 'https://placehold.co/100x100/3b82f6/ffffff?text=Bukti';
-
-    ticketsDB.push({
-        id: 'tkt-' + Date.now(),
-        userId: currentUser.id,
-        userName: currentUser.nama,
-        userRole: currentUser.role,
-        kelas: currentUser.kelas || currentUser.kelasWalikelas || '-',
-        jenis: jenis,
-        tanggalAwal: awal,
-        tanggalAkhir: akhir,
-        keterangan: ket,
-        lampiran: img,
-        status: 'Pending'
-    });
-
-    showToast('Tiket Permohonan Berhasil Terkirim!', 'success');
-    document.getElementById('formTiketIzin').reset();
-    document.getElementById('tiketPhotoContainer').classList.add('hidden');
-    renderUserTickets();
-}
-
-function renderUserTickets() {
-    const container = document.getElementById('userTicketsList');
-    container.innerHTML = '';
-
-    const myTickets = ticketsDB.filter(t => t.userId === currentUser.id);
-
-    if (myTickets.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-500">Belum ada tiket izin yang diajukan.</p>`;
-        return;
-    }
-
-    myTickets.forEach(t => {
-        container.innerHTML += `
-            <div class="p-3 bg-slate-900/90 border border-slate-800 rounded-xl text-xs flex items-center justify-between">
-                <div>
-                    <span class="font-bold text-white">${t.jenis} (${t.tanggalAwal} s/d ${t.tanggalAkhir})</span>
-                    <p class="text-[10px] text-slate-400">${t.keterangan}</p>
-                </div>
-                <span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold ${t.status==='Approved'?'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30':t.status==='Rejected'?'bg-rose-500/20 text-rose-300 border border-rose-500/30':'bg-amber-500/20 text-amber-300 border border-amber-500/30'}">${t.status}</span>
-            </div>
-        `;
-    });
-}
-
-function triggerCamAttachment(containerId, previewImgId) {
-    const c = document.getElementById(containerId);
-    const p = document.getElementById(previewImgId);
-    c.classList.remove('hidden');
-    p.src = 'https://placehold.co/200x200/6366f1/ffffff?text=Kamera+Foto+Captured';
-    showToast('Foto berhasil ditangkap dari kamera!', 'info');
-}
-
-// 3. RIWAYAT MODAL
-function openRiwayatModal() {
-    document.getElementById('modalRiwayat').classList.remove('hidden');
-    renderUserRiwayatTable();
-}
-
-function renderUserRiwayatTable(filterDate = null) {
-    const tbody = document.getElementById('userRiwayatTable');
-    tbody.innerHTML = '';
-
-    let records = attendanceRecordsDB.filter(a => a.userId === currentUser.id);
-    if (filterDate) {
-        records = records.filter(a => a.tanggal === filterDate);
-    }
-
-    if (records.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-500">Tidak ada riwayat presensi ditemukan.</td></tr>`;
-        return;
-    }
-
-    records.forEach(r => {
-        tbody.innerHTML += `
-            <tr class="hover:bg-slate-800/40">
-                <td class="p-3 font-semibold text-slate-200">${r.tanggal} ${r.jam}</td>
-                <td class="p-3"><span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 rounded-lg font-bold border border-emerald-500/30">${r.status}</span></td>
-                <td class="p-3"><img src="${r.foto}" class="w-8 h-8 rounded-lg border border-slate-700 object-cover"></td>
-            </tr>
-        `;
-    });
-}
-
-function filterRiwayatUser() {
-    const d = document.getElementById('filterRiwayatTanggal').value;
-    renderUserRiwayatTable(d);
-}
-
-function resetFilterRiwayatUser() {
-    document.getElementById('filterRiwayatTanggal').value = '';
-    renderUserRiwayatTable();
-}
-
-// 4. APPROVE MODAL (WALIKELAS ONLY)
-function openApproveModal() {
-    document.getElementById('modalApprove').classList.remove('hidden');
-    renderApproveWalikelasTable();
-}
-
-function renderApproveWalikelasTable() {
-    const tbody = document.getElementById('approveWalikelasTable');
-    tbody.innerHTML = '';
-
-    const pending = ticketsDB.filter(t => t.kelas === currentUser.kelasWalikelas);
-
-    if (pending.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Tidak ada pengajuan izin siswa di kelas ${currentUser.kelasWalikelas}.</td></tr>`;
-        return;
-    }
-
-    pending.forEach(t => {
-        tbody.innerHTML += `
-            <tr class="hover:bg-slate-800/40">
-                <td class="p-3 font-bold text-white">${t.userName}</td>
-                <td class="p-3"><span class="font-bold text-indigo-400">${t.jenis}</span> (${t.tanggalAwal} s/d ${t.tanggalAkhir})</td>
-                <td class="p-3 text-slate-300">${t.keterangan}</td>
-                <td class="p-3"><img src="${t.lampiran}" class="w-8 h-8 rounded-lg border border-slate-700"></td>
-                <td class="p-3 text-center space-x-1">
-                    ${t.status === 'Pending' ? `
-                        <button onclick="updateTicketStatus('${t.id}', 'Approved')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-bold shadow">Approve</button>
-                        <button onclick="updateTicketStatus('${t.id}', 'Rejected')" class="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-[10px] font-bold shadow">Tolak</button>
-                    ` : `<span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-300">${t.status}</span>`}
-                </td>
-            </tr>
-        `;
-    });
-}
-
-function updateTicketStatus(id, newStatus) {
-    const tkt = ticketsDB.find(t => t.id === id);
-    if (tkt) {
-        tkt.status = newStatus;
-        showToast(`Status Tiket ${tkt.userName} Diperbarui: ${newStatus}`, 'success');
-        renderApproveWalikelasTable();
-    }
-}
-
-// 5. PRESENSI MAPEL MODAL (GURU ONLY)
-function openPresensiMapelModal() {
-    document.getElementById('modalPresensiMapel').classList.remove('hidden');
-    renderPresensiMapelStudentList();
-}
-
-function renderPresensiMapelStudentList() {
-    const kls = document.getElementById('presensiMapelKelas').value;
-    const tbody = document.getElementById('presensiMapelStudentTable');
-    tbody.innerHTML = '';
-
-    const students = usersDB.filter(u => u.role === 'Siswa' && u.kelas === kls);
-
-    if (students.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Tidak ada siswa terdaftar di kelas ${kls}.</td></tr>`;
-        return;
-    }
-
-    students.forEach(s => {
-        const approvedTkt = ticketsDB.find(t => t.userId === s.id && t.status === 'Approved');
-        let autoStatus = 'Hadir';
-        let statusBadge = `<span class="text-[10px] text-slate-500 font-semibold">-</span>`;
-
-        if (approvedTkt) {
-            autoStatus = approvedTkt.jenis;
-            statusBadge = `<span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold rounded-lg text-[10px]">Izin Walikelas (${approvedTkt.jenis})</span>`;
-        }
-
-        tbody.innerHTML += `
-            <tr class="hover:bg-slate-800/40">
-                <td class="p-3 font-mono text-slate-300">${s.nis}</td>
-                <td class="p-3 font-bold text-white">${s.nama}</td>
-                <td class="p-3">${statusBadge}</td>
-                <td class="p-3">
-                    <select data-siswaname="${s.nama}" class="mapelStudentSelect p-2 bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold text-white">
-                        <option value="Hadir" ${autoStatus==='Hadir'?'selected':''}>Hadir</option>
-                        <option value="Izin" ${autoStatus==='Izin'?'selected':''}>Izin</option>
-                        <option value="Sakit" ${autoStatus==='Sakit'?'selected':''}>Sakit</option>
-                        <option value="Alpa" ${autoStatus==='Alpa'?'selected':''}>Alpa</option>
-                    </select>
-                </td>
-            </tr>
-        `;
-    });
-}
-
-function savePresensiMapel() {
-    const mapel = document.getElementById('presensiMapelNama').value;
-    const kelas = document.getElementById('presensiMapelKelas').value;
-    const selects = document.querySelectorAll('.mapelStudentSelect');
-
-    const now = new Date();
-    const timeStr = `${now.toISOString().split('T')[0]} ${now.toLocaleTimeString('id-ID')}`;
-
-    selects.forEach(sel => {
-        const sName = sel.getAttribute('data-siswaname');
-        const st = sel.value;
-
-        mapelAttendanceDB.push({
-            id: 'mapel-' + Date.now(),
-            waktu: timeStr,
-            mapel: mapel,
-            kelas: kelas,
-            guruName: currentUser.nama,
-            siswaName: sName,
-            status: st
-        });
-    });
-
-    closeModal('modalPresensiMapel');
-    showToast('Presensi Mata Pelajaran Berhasil Disimpan Realtime!', 'success');
-}
-
-// 6. LAPOR MODAL LOGIC
-function openLaporModal() {
-    document.getElementById('modalLapor').classList.remove('hidden');
-    if (currentUser && currentUser.role === 'Guru') {
-        switchLaporSubtab('daftar');
-    } else {
-        switchLaporSubtab('form');
-    }
-    renderIncidentReports();
-}
-
-function switchLaporSubtab(subtab) {
-    document.querySelectorAll('.laporSubtabBtn').forEach(b => {
-        b.classList.remove('border-rose-500', 'font-bold', 'text-rose-400');
-        b.classList.add('border-transparent', 'font-medium', 'text-slate-400');
-    });
-
-    const activeBtn = document.getElementById(`laporSubtabBtn-${subtab}`);
-    if (activeBtn) {
-        activeBtn.classList.remove('border-transparent', 'font-medium', 'text-slate-400');
-        activeBtn.classList.add('border-rose-500', 'font-bold', 'text-rose-400');
-    }
-
-    document.getElementById('laporSection-daftar').classList.add('hidden');
-    document.getElementById('laporSection-form').classList.add('hidden');
-
-    document.getElementById(`laporSection-${subtab}`).classList.remove('hidden');
-
-    if (subtab === 'daftar') renderIncidentReports();
-}
-
-function handleReportSubmission(e) {
-    e.preventDefault();
-    const kronologi = document.getElementById('laporKronologi').value;
-    const img = document.getElementById('laporPhotoPreview').src || 'https://placehold.co/200x200/ef4444/ffffff?text=Foto+Kejadian';
-
-    const now = new Date();
-    const newReport = {
-        id: 'rep-' + Date.now(),
-        pelaporName: currentUser.nama,
-        pelaporRole: currentUser.role,
-        kronologi: kronologi,
-        foto: img,
-        waktu: `${now.toISOString().split('T')[0]} ${now.toLocaleTimeString('id-ID')}`
-    };
-
-    incidentReportsDB.push(newReport);
-
-    document.getElementById('formPelaporan').reset();
-    document.getElementById('laporPhotoContainer').classList.add('hidden');
-    showToast('Laporan kejadian terkirim ke Guru dan Admin!', 'success');
-    switchLaporSubtab('daftar');
-    renderReportsAdmin();
-}
-
-function renderIncidentReports() {
-    const container = document.getElementById('reportsListContainer');
-    container.innerHTML = '';
-
-    if (incidentReportsDB.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Belum ada laporan kejadian yang tercatat.</p>`;
-        return;
-    }
-
-    incidentReportsDB.forEach(r => {
-        container.innerHTML += `
-            <div class="p-4 bg-slate-900/90 border border-slate-800 rounded-2xl text-xs space-y-2.5 shadow-sm">
-                <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-                        <span class="font-bold text-white">${r.pelaporName}</span>
-                        <span class="px-2 py-0.5 text-[9px] font-bold rounded-md bg-slate-800 text-rose-300 border border-rose-500/20 uppercase">${r.pelaporRole}</span>
-                    </div>
-                    <span class="text-[10px] text-slate-400 font-mono"><i class="fa-regular fa-clock mr-1"></i>${r.waktu}</span>
-                </div>
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Kronologi Kejadian:</span>
-                    <p class="text-slate-200 leading-relaxed bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">${r.kronologi}</p>
-                </div>
-                ${r.foto ? `
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Dokumentasi Kejadian:</span>
-                    <img src="${r.foto}" class="w-full h-40 object-cover rounded-xl border border-slate-700 shadow-inner">
-                </div>` : ''}
-            </div>
-        `;
-    });
 }
 
 function closeModal(modalId) {
     stopWebcam();
+    closeAttachmentCamera('tiketCamContainer', 'tiketVideo');
+    closeAttachmentCamera('laporCamContainer', 'laporVideo');
     document.getElementById(modalId).classList.add('hidden');
 }
 
-/* ==========================================================================
-   UTILITY TOAST NOTIFICATION
-   ========================================================================== */
 function showToast(message, type = 'info') {
     const toast = document.getElementById('notificationToast');
     const title = document.getElementById('toastTitle');
