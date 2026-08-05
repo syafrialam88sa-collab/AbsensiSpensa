@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPENSA PRESENSI - Modern Integrated School Attendance</title>
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Pro/Free Icons -->
@@ -49,6 +50,7 @@
             }
         }
     </script>
+    
     <style>
         ::-webkit-scrollbar {
             width: 6px;
@@ -175,7 +177,11 @@
                     <i id="themeIcon" class="fa-solid fa-sun text-lg group-hover:rotate-45 transition transform duration-300"></i>
                 </button>
 
-                <div id="userInfoHeader" class="hidden flex items-center space-x-4">
+                <div id="userInfoHeader" class="hidden flex items-center space-x-3">
+                    <button onclick="openChangePasswordModal()" class="p-2.5 bg-slate-800/80 hover:bg-indigo-600/30 text-indigo-300 hover:text-white rounded-2xl border border-slate-700/60 transition group flex items-center justify-center space-x-1.5 text-xs font-bold" title="Ganti Password Saya">
+                        <i class="fa-solid fa-key"></i>
+                        <span class="hidden sm:inline">Ganti Password</span>
+                    </button>
                     <div class="text-right hidden sm:block">
                         <span id="headerUserName" class="block font-semibold text-sm text-slate-100">Nama User</span>
                         <span id="headerUserRole" class="inline-block px-2.5 py-0.5 text-[10px] uppercase font-bold tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full">ROLE</span>
@@ -246,13 +252,16 @@
                     <i class="fa-solid fa-sliders"></i>
                     <span>Pengaturan</span>
                 </button>
+                <button onclick="switchAdminTab('approveTiketAdmin')" id="tabBtn-approveTiketAdmin" class="adminTabBtn px-5 py-3 rounded-xl font-bold text-xs text-slate-400 hover:text-white hover:bg-slate-800/60 transition flex items-center space-x-2">
+                    <i class="fa-solid fa-stamp"></i>
+                    <span>Approve Tiket Guru & Tendik</span>
+                </button>
                 <button onclick="switchAdminTab('laporan')" id="tabBtn-laporan" class="adminTabBtn px-5 py-3 rounded-xl font-bold text-xs text-slate-400 hover:text-white hover:bg-slate-800/60 transition flex items-center space-x-2">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                     <span>Laporan Bolos</span>
                 </button>
             </div>
 
-            <!-- Admin Subtab: Dashboard -->
             <div id="adminTab-dashboard" class="space-y-6">
                 <div>
                     <h3 class="text-xs font-extrabold uppercase tracking-widest text-indigo-400 mb-3 flex items-center">
@@ -351,7 +360,6 @@
                 </div>
             </div>
 
-            <!-- Admin Subtab: Registrasi -->
             <div id="adminTab-registrasi" class="hidden space-y-6">
                 <div class="glass-panel p-6 rounded-3xl space-y-6">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-4">
@@ -367,6 +375,7 @@
                             <option value="Siswa">Siswa</option>
                             <option value="Guru">Guru</option>
                             <option value="Tendik">Tendik</option>
+                            <option value="Kepala Sekolah">Kepala Sekolah</option>
                         </select>
                     </div>
 
@@ -390,7 +399,8 @@
                                     <th class="p-3.5 rounded-l-xl">Foto</th>
                                     <th class="p-3.5">Nama Lengkap</th>
                                     <th class="p-3.5">Role</th>
-                                    <th class="p-3.5">ID / Username / NIS / NIP</th>
+                                    <th class="p-3.5">ID / NIS / NIP</th>
+                                    <th class="p-3.5">Password Active</th>
                                     <th class="p-3.5">Detail Tambahan</th>
                                     <th class="p-3.5 text-center rounded-r-xl">Aksi</th>
                                 </tr>
@@ -401,7 +411,34 @@
                 </div>
             </div>
 
-            <!-- Admin Subtab: Pengaturan -->
+            <div id="adminTab-approveTiketAdmin" class="hidden space-y-6">
+                <div class="glass-panel p-6 rounded-3xl">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+                        <h3 class="text-base font-bold text-white flex items-center">
+                            <i class="fa-solid fa-stamp text-amber-400 mr-2"></i> Persetujuan Tiket Izin / Sakit / Tugas (Guru & Tendik)
+                        </h3>
+                        <span class="text-xs text-slate-400 font-medium">Khusus Pengajuan Guru & Tendik</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-900 text-slate-400 font-bold uppercase">
+                                <tr>
+                                    <th class="p-3">Nama Pegawai / Guru</th>
+                                    <th class="p-3">Role</th>
+                                    <th class="p-3">Jenis & Periode</th>
+                                    <th class="p-3">Keterangan</th>
+                                    <th class="p-3">Bukti Foto</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3 text-center">Aksi Admin</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminApproveTicketTable" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div id="adminTab-pengaturan" class="hidden space-y-6">
                 <div class="flex border-b border-slate-800 gap-2">
                     <button onclick="switchSettingsSubtab('jamHari')" id="subtabBtn-jamHari" class="settingSubTabBtn px-5 py-2.5 border-b-2 border-indigo-500 font-bold text-xs text-indigo-400">Jam & Hari Sekolah</button>
@@ -633,7 +670,7 @@
                     <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition shadow-inner">
                         <i class="fa-solid fa-file-circle-check text-2xl text-purple-200"></i>
                     </div>
-                    <span class="font-extrabold text-xs tracking-wider uppercase">Approve Izin</span>
+                    <span id="lblApproveButton" class="font-extrabold text-xs tracking-wider uppercase">Approve Izin</span>
                 </button>
 
                 <button id="btnPresensiMapelGuru" onclick="openPresensiMapelModal()" class="hidden p-5 bg-gradient-to-br from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white rounded-3xl shadow-xl transition transform hover:-translate-y-1 active:scale-95 flex flex-col items-center justify-center space-y-3 group border border-cyan-400/20">
@@ -643,60 +680,114 @@
                     <span class="font-extrabold text-xs tracking-wider uppercase">Presensi Mapel</span>
                 </button>
 
-                <button id="btnLaporModal" onclick="openLaporModal()" class="p-5 bg-gradient-to-br from-rose-600 to-pink-700 hover:from-rose-500 hover:to-pink-600 text-white rounded-3xl shadow-xl transition transform hover:-translate-y-1 active:scale-95 flex flex-col items-center justify-center space-y-3 group border border-rose-400/20">
+                <button id="btnLaporModal" onclick="openLaporModal()" class="hidden p-5 bg-gradient-to-br from-rose-600 to-pink-700 hover:from-rose-500 hover:to-pink-600 text-white rounded-3xl shadow-xl transition transform hover:-translate-y-1 active:scale-95 flex flex-col items-center justify-center space-y-3 group border border-rose-400/20">
                     <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition shadow-inner">
                         <i class="fa-solid fa-bullhorn text-2xl text-rose-200"></i>
                     </div>
-                    <span id="btnLaporModalText" class="font-extrabold text-xs tracking-wider uppercase">Menu Laporan</span>
+                    <span class="font-extrabold text-xs tracking-wider uppercase">Menu Laporan</span>
                 </button>
             </div>
         </section>
 
-        <!-- 1. MODAL ABSEN (CAMERA + GEOFENCE DETAIL) -->
+        <!-- 1. MODAL ABSEN (CAMERA SELFIE & GEOFENCE) -->
         <div id="modalAbsen" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div class="glass-panel rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-700 space-y-5 p-6">
+            <div class="glass-panel rounded-3xl max-w-md w-full p-6 space-y-4 border border-slate-700 shadow-2xl">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <h3 class="text-base font-bold text-white flex items-center">
-                        <i class="fa-solid fa-camera-retro text-emerald-400 mr-2"></i> Presensi Kehadiran Face Cam
+                        <i class="fa-solid fa-camera text-emerald-400 mr-2"></i> Ambil Presensi Face Cam
                     </h3>
                     <button onclick="closeModal('modalAbsen')" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
 
-                <div class="relative bg-slate-950 rounded-2xl overflow-hidden aspect-video flex items-center justify-center border-2 border-slate-800 shadow-inner group">
+                <div class="relative bg-slate-950 rounded-2xl overflow-hidden aspect-video border-2 border-emerald-500/40 shadow-inner group">
                     <video id="webcamVideo" autoplay playsinline class="w-full h-full object-cover"></video>
                     <canvas id="webcamCanvas" class="hidden"></canvas>
-                    <img id="capturedImagePreview" class="hidden w-full h-full object-cover">
-                    
-                    <div class="absolute inset-0 border-2 border-emerald-500/30 rounded-2xl pointer-events-none"></div>
-                    <div class="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-scan pointer-events-none"></div>
-
-                    <div id="cameraOverlayText" class="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-xl text-[10px] text-emerald-400 font-mono font-bold flex items-center space-x-1">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                        <span>LIVE FACE DETECT</span>
-                    </div>
+                    <div class="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-scan"></div>
                 </div>
 
-                <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 text-xs space-y-2 font-medium">
+                <div class="bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 text-xs space-y-1.5 text-slate-300">
                     <div class="flex justify-between">
-                        <span class="text-slate-400">Tanggal:</span>
+                        <span class="text-slate-500">Tanggal:</span>
                         <span id="absenInfoTanggal" class="font-bold text-white">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-slate-400">Jam Presensi:</span>
-                        <span id="absenInfoJam" class="font-bold text-white">-</span>
+                        <span class="text-slate-500">Jam:</span>
+                        <span id="absenInfoJam" class="font-bold font-mono text-emerald-400">-</span>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-400">Radius Poin Sekolah:</span>
-                        <span id="absenInfoRadius" class="px-2.5 py-1 rounded-lg font-bold text-xs text-emerald-300 bg-emerald-500/20 border border-emerald-500/30">✓ Dalam Radius (25m)</span>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Radius Poin:</span>
+                        <span id="absenInfoRadius" class="font-bold text-indigo-300">✓ Dalam Radius (100m)</span>
                     </div>
                 </div>
 
-                <div class="flex gap-2">
-                    <button id="btnCaptureCam" onclick="captureSelfie()" class="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-2xl shadow-lg transition flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-camera"></i>
-                        <span>Ambil Foto & Absen Masuk</span>
-                    </button>
+                <button onclick="captureSelfie()" class="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-2xl shadow-lg shadow-emerald-600/30 transition transform active:scale-95 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-circle-dot animate-pulse"></i>
+                    <span>Jepret Foto Presensi</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- MODAL CHANGE PASSWORD -->
+        <div id="modalGantiPassword" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+            <div class="glass-panel rounded-3xl max-w-md w-full p-6 space-y-5 border border-slate-700 shadow-2xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-base font-bold text-white flex items-center">
+                        <i class="fa-solid fa-key text-indigo-400 mr-2"></i> Ubah Password Akun
+                    </h3>
+                    <button onclick="closeModal('modalGantiPassword')" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
+
+                <form onsubmit="handleUserChangePassword(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Password Saat Ini</label>
+                        <input type="password" id="changePassOld" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Masukkan password lama">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Password Baru</label>
+                        <input type="password" id="changePassNew" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Masukkan password baru">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Konfirmasi Password Baru</label>
+                        <input type="password" id="changePassConfirm" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Ulangi password baru">
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-2xl shadow-lg transition">
+                        Simpan Password Baru
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- MODAL EDIT USER (ADMIN) -->
+        <div id="modalEditUser" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+            <div class="glass-panel rounded-3xl max-w-lg w-full p-6 space-y-5 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-base font-bold text-white flex items-center">
+                        <i class="fa-solid fa-user-pen text-amber-400 mr-2"></i> Edit Data Akun User
+                    </h3>
+                    <button onclick="closeModal('modalEditUser')" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+
+                <form onsubmit="handleSaveEditUser(event)" class="space-y-4">
+                    <input type="hidden" id="editUserId">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
+                        <input type="text" id="editUserNama" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Username / NIS / NIP</label>
+                        <input type="text" id="editUserUsername" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Password</label>
+                        <input type="text" id="editUserPassword" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white">
+                    </div>
+                    <div id="editUserDetailContainer" class="space-y-3"></div>
+
+                    <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-2xl shadow-lg transition">
+                        Update Data User
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -805,11 +896,11 @@
             </div>
         </div>
 
-        <!-- 4. MODAL APPROVE -->
+        <!-- 4. MODAL APPROVE (WALIKELAS / KEPALA SEKOLAH) -->
         <div id="modalApprove" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
             <div class="glass-panel rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl p-6">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-                    <h3 class="text-base font-bold text-white flex items-center">
+                    <h3 id="approveModalHeaderTitle" class="text-base font-bold text-white flex items-center">
                         <i class="fa-solid fa-file-circle-check text-purple-400 mr-2"></i> Approve Permohonan Izin Siswa Kelas
                     </h3>
                     <button onclick="closeModal('modalApprove')" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -819,11 +910,11 @@
                     <table class="w-full text-left text-xs text-slate-300">
                         <thead class="bg-slate-900 text-slate-400 font-bold sticky top-0">
                             <tr>
-                                <th class="p-3">Siswa</th>
+                                <th class="p-3">Pemohon</th>
                                 <th class="p-3">Jenis & Periode</th>
                                 <th class="p-3">Keterangan</th>
                                 <th class="p-3">Bukti Foto</th>
-                                <th class="p-3 text-center">Aksi Walikelas</th>
+                                <th class="p-3 text-center">Aksi Persetujuan</th>
                             </tr>
                         </thead>
                         <tbody id="approveWalikelasTable" class="divide-y divide-slate-800"></tbody>
@@ -1012,6 +1103,7 @@ function seedInitialData() {
                 password: '19850101',
                 role: 'Guru',
                 nip: '19850101',
+                mapelGuru: 'Matematika',
                 isWalikelas: true,
                 kelasWalikelas: 'VII-A',
                 foto: 'https://placehold.co/100x100/10b981/ffffff?text=AD'
@@ -1024,6 +1116,16 @@ function seedInitialData() {
                 role: 'Tendik',
                 jabatan: 'Staf TU',
                 foto: 'https://placehold.co/100x100/f59e0b/ffffff?text=BS'
+            },
+            {
+                id: 'usr-kepsek-1970',
+                nama: 'Dr. Hj. Siti Rahmah, M.Pd',
+                username: '19700512',
+                password: '19700512',
+                role: 'Kepala Sekolah',
+                nip: '19700512',
+                jabatan: 'Kepala Sekolah',
+                foto: 'https://placehold.co/100x100/ec4899/ffffff?text=KS'
             }
         ];
         localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(seedUsers));
@@ -1186,6 +1288,8 @@ function handleLogin(event) {
     const idInput = document.getElementById('loginUsername').value.trim();
     const passInput = document.getElementById('loginPassword').value.trim();
 
+    usersDB = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || usersDB;
+
     let matchedUser = null;
 
     if (idInput === 'Gacor' && passInput === 'spensahalsel') {
@@ -1245,15 +1349,22 @@ function setupUserSessionUI() {
         const btnApprove = document.getElementById('btnApproveWalikelas');
         const btnMapel = document.getElementById('btnPresensiMapelGuru');
         const btnLapor = document.getElementById('btnLaporModal');
+        const lblApprove = document.getElementById('lblApproveButton');
 
         if (currentUser.role === 'Guru') {
             btnMapel.classList.remove('hidden');
             btnLapor.classList.remove('hidden');
+            if (lblApprove) lblApprove.textContent = 'Approve Izin';
             if (currentUser.isWalikelas) {
                 btnApprove.classList.remove('hidden');
             } else {
                 btnApprove.classList.add('hidden');
             }
+        } else if (currentUser.role === 'Kepala Sekolah') {
+            btnMapel.classList.remove('hidden');
+            btnLapor.classList.remove('hidden');
+            btnApprove.classList.remove('hidden');
+            if (lblApprove) lblApprove.textContent = 'Approve Tiket';
         } else if (currentUser.role === 'Siswa') {
             btnApprove.classList.add('hidden');
             btnMapel.classList.add('hidden');
@@ -1261,7 +1372,7 @@ function setupUserSessionUI() {
         } else if (currentUser.role === 'Tendik') {
             btnApprove.classList.add('hidden');
             btnMapel.classList.add('hidden');
-            btnLapor.classList.add('hidden'); // Tendik -> Hide Lapor button
+            btnLapor.classList.add('hidden');
         }
 
         updateUserStats();
@@ -1278,9 +1389,8 @@ function switchView(viewId) {
 /* Admin Dashboard Stats Calculation */
 function updateAdminDashboardStats() {
     const totalSiswa = usersDB.filter(u => u.role === 'Siswa').length;
-    const totalGuru = usersDB.filter(u => u.role === 'Guru').length;
+    const totalGuru = usersDB.filter(u => u.role === 'Guru' || u.role === 'Kepala Sekolah').length;
 
-    // Calculate unique classes registered
     const classSet = new Set();
     usersDB.forEach(u => {
         if (u.role === 'Siswa' && u.kelas && u.kelas !== '-') classSet.add(u.kelas);
@@ -1294,12 +1404,11 @@ function updateAdminDashboardStats() {
     document.getElementById('statKelasKBM').textContent = Math.max(0, totalKelas - 2);
     document.getElementById('statKelasNonKBM').textContent = 2;
 
-    // Attendance stats
     const today = new Date().toISOString().split('T')[0];
     const todayAtt = attendanceDB.filter(a => a.tanggal === today);
 
     const hadirSiswa = todayAtt.filter(a => a.role === 'Siswa' && a.status === 'Hadir').length;
-    const hadirGuru = todayAtt.filter(a => a.role === 'Guru' && a.status === 'Hadir').length;
+    const hadirGuru = todayAtt.filter(a => (a.role === 'Guru' || a.role === 'Kepala Sekolah') && a.status === 'Hadir').length;
 
     document.getElementById('statHadirSiswa').textContent = hadirSiswa;
     document.getElementById('statHadirGuru').textContent = hadirGuru;
@@ -1309,127 +1418,166 @@ function updateAdminDashboardStats() {
 
 /* Admin Subtabs Navigation */
 function switchAdminTab(tabName) {
-    const tabs = ['dashboard', 'registrasi', 'pengaturan', 'laporan'];
+    const tabs = ['dashboard', 'registrasi', 'pengaturan', 'approveTiketAdmin', 'laporan'];
     tabs.forEach(t => {
-        document.getElementById(`adminTab-${t}`).classList.add('hidden');
+        const elem = document.getElementById(`adminTab-${t}`);
+        if (elem) elem.classList.add('hidden');
         const btn = document.getElementById(`tabBtn-${t}`);
         if (btn) {
             btn.className = "adminTabBtn px-5 py-3 rounded-xl font-bold text-xs text-slate-400 hover:text-white hover:bg-slate-800/60 transition flex items-center space-x-2";
         }
     });
 
-    document.getElementById(`adminTab-${tabName}`).classList.remove('hidden');
+    const activeTab = document.getElementById(`adminTab-${tabName}`);
+    if (activeTab) activeTab.classList.remove('hidden');
     const activeBtn = document.getElementById(`tabBtn-${tabName}`);
     if (activeBtn) {
         activeBtn.className = "adminTabBtn px-5 py-3 rounded-xl font-bold text-xs transition flex items-center space-x-2 bg-indigo-600 text-white shadow-md";
     }
 
     if (tabName === 'pengaturan') switchSettingsSubtab('jamHari');
+    if (tabName === 'approveTiketAdmin') renderAdminApproveTicketsTable();
     if (tabName === 'laporan') renderReportsAdmin();
 }
 
-/* Registration Form Logic */
 function renderRegForm() {
-    const role = document.getElementById('regRoleSelect').value;
+    const roleSelect = document.getElementById('regRoleSelect');
     const container = document.getElementById('regFormContainer');
+    if (!roleSelect || !container) return;
+
+    const role = roleSelect.value;
+    let html = '';
 
     if (role === 'Siswa') {
-        container.innerHTML = `
-            <div class="space-y-4">
+        html = `
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Foto Profile / Pasfoto Siswa</label>
+                <input type="file" id="regFoto" accept="image/*" class="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Foto Profile Siswa</label>
-                    <input type="file" id="regFoto" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/20 file:text-indigo-300 hover:file:bg-indigo-500/30">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Siswa</label>
+                    <input type="text" id="regNama" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Nama Lengkap Siswa">
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap Siswa</label>
-                        <input type="text" id="regNama" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Nama Lengkap">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">NIS (Nomor Induk Siswa)</label>
-                        <input type="text" id="regNIS" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="NIS">
-                    </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">NIS (Nomor Induk Siswa)</label>
+                    <input type="text" id="regNIS" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Contoh: 1001">
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Tempat, Tanggal Lahir</label>
-                        <input type="text" id="regTTL" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Ternate, 12 Mei 2010">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Alamat Tempat Tinggal</label>
-                        <input type="text" id="regAlamat" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Alamat Lengkap">
-                    </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Tempat, Tanggal Lahir</label>
+                    <input type="text" id="regTTL" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Ternate, 12 Mei 2010">
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Kelas (Input Bebas)</label>
-                        <input type="text" id="regKelas" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Contoh: VII-A, VIII-B, IX-C">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Walikelas</label>
-                        <input type="text" id="regWalikelas" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Drs. Ahmad Dahlan, M.Pd">
-                    </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Alamat Tempat Tinggal</label>
+                    <input type="text" id="regAlamat" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Alamat Rumah">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Kelas Siswa</label>
+                    <input type="text" id="regKelas" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Contoh: VII-A">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Walikelas</label>
+                    <input type="text" id="regWalikelas" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Nama Guru Walikelas">
                 </div>
             </div>
         `;
     } else if (role === 'Guru') {
-        container.innerHTML = `
-            <div class="space-y-4">
+        html = `
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Foto Profile Guru</label>
+                <input type="file" id="regFoto" accept="image/*" class="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Foto Profile Guru</label>
-                    <input type="file" id="regFoto" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/20 file:text-indigo-300 hover:file:bg-indigo-500/30">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Guru</label>
+                    <input type="text" id="regNama" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Nama Lengkap & Gelar">
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap Guru (dengan Gelar)</label>
-                        <input type="text" id="regNama" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Nama Guru">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">NIP Guru</label>
-                        <input type="text" id="regNIP" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="NIP Guru">
-                    </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">NIP Guru</label>
+                    <input type="text" id="regNIP" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Contoh: 19850101">
                 </div>
-                <div class="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
-                    <div class="flex items-center space-x-3">
-                        <input type="checkbox" id="regIsWalikelas" onchange="document.getElementById('regKelasWaliContainer').classList.toggle('hidden')" class="w-4 h-4 text-indigo-600 bg-slate-800 border-slate-700 rounded">
-                        <label for="regIsWalikelas" class="text-xs font-bold text-indigo-300">Aktifkan Sebagai Guru Walikelas</label>
-                    </div>
-                    <div id="regKelasWaliContainer" class="hidden">
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Walikelas Untuk Kelas Mana?</label>
-                        <input type="text" id="regKelasWalikelas" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Contoh: VII-A">
-                    </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Mata Pelajaran yang Diampu</label>
+                <input type="text" id="regMapelGuru" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Contoh: Matematika / Bahasa Indonesia">
+            </div>
+            <div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3">
+                <div class="flex items-center space-x-3">
+                    <input type="checkbox" id="regIsWalikelas" onchange="toggleRegWalikelasField()" class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-slate-700 bg-slate-900">
+                    <label for="regIsWalikelas" class="text-xs font-bold text-indigo-300">Aktifkan Tugas Tambahan Sebagai Walikelas</label>
+                </div>
+                <div id="regKelasWalikelasContainer" class="hidden">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Kelas yang Diampu (Walikelas)</label>
+                    <input type="text" id="regKelasWalikelas" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Contoh: VII-A">
                 </div>
             </div>
         `;
     } else if (role === 'Tendik') {
-        container.innerHTML = `
-            <div class="space-y-4">
+        html = `
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Foto Profile Pegawai Tendik</label>
+                <input type="file" id="regFoto" accept="image/*" class="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Foto Profile Tendik</label>
-                    <input type="file" id="regFoto" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/20 file:text-indigo-300 hover:file:bg-indigo-500/30">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap Pegawai</label>
+                    <input type="text" id="regNama" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Nama Lengkap">
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap Pegawai</label>
-                        <input type="text" id="regNama" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Nama Tendik">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Jabatan / Unit Kerja</label>
-                        <input type="text" id="regJabatan" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Staf TU / Perpustakaan">
-                    </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Username Login</label>
+                    <input type="text" id="regUsername" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Contoh: Tendik">
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Username Login</label>
-                        <input type="text" id="regUsername" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Username">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Password Login</label>
-                        <input type="password" id="regPassword" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Password">
-                    </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Password Login</label>
+                    <input type="text" id="regPassword" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Masukkan Password">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Jabatan / Unit Kerja</label>
+                    <input type="text" id="regJabatan" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Contoh: Staf TU / Pustakawan">
                 </div>
             </div>
         `;
+    } else if (role === 'Kepala Sekolah') {
+        html = `
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Foto Profile Kepala Sekolah</label>
+                <input type="file" id="regFoto" accept="image/*" class="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap Kepala Sekolah</label>
+                    <input type="text" id="regNama" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Nama & Gelar Lengkap">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">NIP Kepala Sekolah</label>
+                    <input type="text" id="regNIP" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white" placeholder="Contoh: 19700512">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Jabatan</label>
+                <input type="text" id="regJabatan" value="Kepala Sekolah" readonly class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white font-bold text-indigo-400">
+            </div>
+        `;
+    }
+
+    container.innerHTML = html;
+}
+
+function toggleRegWalikelasField() {
+    const isWali = document.getElementById('regIsWalikelas');
+    const container = document.getElementById('regKelasWalikelasContainer');
+    if (isWali && container) {
+        if (isWali.checked) {
+            container.classList.remove('hidden');
+        } else {
+            container.classList.add('hidden');
+        }
     }
 }
 
@@ -1437,14 +1585,17 @@ function handleUserRegistration(event) {
     event.preventDefault();
     const role = document.getElementById('regRoleSelect').value;
     const fileInput = document.getElementById('regFoto');
-    let fotoUrl = `https://placehold.co/100x100/6366f1/ffffff?text=${encodeURIComponent(role)}`;
 
-    const processSave = (photoData) => {
-        const newUser = {
-            id: 'usr-' + Date.now(),
-            role,
+    const createRecordAndSave = (photoDataUrl) => {
+        const defaultPhoto = `https://placehold.co/100x100/4f46e5/ffffff?text=${encodeURIComponent(role)}`;
+        const photo = photoDataUrl || defaultPhoto;
+        const newId = 'usr-' + Date.now();
+
+        let newUser = {
+            id: newId,
+            role: role,
             nama: document.getElementById('regNama').value.trim(),
-            foto: photoData || fotoUrl
+            foto: photo
         };
 
         if (role === 'Siswa') {
@@ -1452,37 +1603,48 @@ function handleUserRegistration(event) {
             newUser.username = nis;
             newUser.password = nis;
             newUser.nis = nis;
-            newUser.ttl = document.getElementById('regTTL').value || '-';
-            newUser.alamat = document.getElementById('regAlamat').value || '-';
-            newUser.kelas = document.getElementById('regKelas').value || '-';
-            newUser.walikelas = document.getElementById('regWalikelas').value || '-';
+            newUser.ttl = document.getElementById('regTTL').value.trim();
+            newUser.alamat = document.getElementById('regAlamat').value.trim();
+            newUser.kelas = document.getElementById('regKelas').value.trim();
+            newUser.walikelas = document.getElementById('regWalikelas').value.trim();
         } else if (role === 'Guru') {
+            const nip = document.getElementById('regNIP').value.trim();
+            const isWalikelas = document.getElementById('regIsWalikelas').checked;
+            newUser.username = nip;
+            newUser.password = nip;
+            newUser.nip = nip;
+            newUser.mapelGuru = document.getElementById('regMapelGuru').value.trim();
+            newUser.isWalikelas = isWalikelas;
+            newUser.kelasWalikelas = isWalikelas ? document.getElementById('regKelasWalikelas').value.trim() : '-';
+        } else if (role === 'Tendik') {
+            newUser.username = document.getElementById('regUsername').value.trim();
+            newUser.password = document.getElementById('regPassword').value.trim();
+            newUser.jabatan = document.getElementById('regJabatan').value.trim();
+        } else if (role === 'Kepala Sekolah') {
             const nip = document.getElementById('regNIP').value.trim();
             newUser.username = nip;
             newUser.password = nip;
             newUser.nip = nip;
-            newUser.isWalikelas = document.getElementById('regIsWalikelas').checked;
-            newUser.kelasWalikelas = newUser.isWalikelas ? (document.getElementById('regKelasWalikelas').value || '-') : '-';
-        } else if (role === 'Tendik') {
-            newUser.username = document.getElementById('regUsername').value.trim();
-            newUser.password = document.getElementById('regPassword').value.trim();
-            newUser.jabatan = document.getElementById('regJabatan').value || 'Tenaga Kependidikan';
+            newUser.jabatan = 'Kepala Sekolah';
         }
 
         usersDB.push(newUser);
         localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(usersDB));
         renderRegisteredUsersTable();
         updateAdminDashboardStats();
+        showToast(`Akun ${role} (${newUser.nama}) berhasil dibuat & langsung aktif!`, 'success');
         document.getElementById('regForm').reset();
-        showToast(`Akun ${role} (${newUser.nama}) berhasil didaftarkan!`, 'success');
+        renderRegForm();
     };
 
     if (fileInput && fileInput.files && fileInput.files[0]) {
         const reader = new FileReader();
-        reader.onload = (e) => processSave(e.target.result);
+        reader.onload = function(e) {
+            createRecordAndSave(e.target.result);
+        };
         reader.readAsDataURL(fileInput.files[0]);
     } else {
-        processSave(fotoUrl);
+        createRecordAndSave(null);
     }
 }
 
@@ -1494,8 +1656,9 @@ function renderRegisteredUsersTable() {
     usersDB.forEach(u => {
         let detail = '-';
         if (u.role === 'Siswa') detail = `Kelas: ${u.kelas} | Wali: ${u.walikelas}`;
-        else if (u.role === 'Guru') detail = u.isWalikelas ? `Walikelas: ${u.kelasWalikelas}` : 'Guru Mapel';
+        else if (u.role === 'Guru') detail = `Mapel: ${u.mapelGuru || '-'} | ${u.isWalikelas ? 'Walikelas: ' + u.kelasWalikelas : 'Guru Mapel'}`;
         else if (u.role === 'Tendik') detail = `Jabatan: ${u.jabatan || '-'}`;
+        else if (u.role === 'Kepala Sekolah') detail = `Jabatan: ${u.jabatan || 'Kepala Sekolah'}`;
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/40 transition";
@@ -1504,13 +1667,110 @@ function renderRegisteredUsersTable() {
             <td class="p-3.5 font-bold text-white">${u.nama}</td>
             <td class="p-3.5"><span class="px-2 py-0.5 text-[10px] uppercase font-bold rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">${u.role}</span></td>
             <td class="p-3.5 font-mono text-slate-300">${u.username || u.nis || u.nip}</td>
+            <td class="p-3.5 font-mono text-amber-400 font-semibold">${u.password}</td>
             <td class="p-3.5 text-slate-400 text-[11px]">${detail}</td>
-            <td class="p-3.5 text-center">
+            <td class="p-3.5 text-center flex items-center justify-center space-x-1.5">
+                <button onclick="openEditUserModal('${u.id}')" class="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/20 rounded-lg transition" title="Edit User"><i class="fa-solid fa-pen"></i></button>
+                <button onclick="resetUserPassword('${u.id}')" class="p-1.5 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/20 rounded-lg transition" title="Reset Password"><i class="fa-solid fa-rotate-left"></i></button>
                 <button onclick="deleteUser('${u.id}')" class="p-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/20 rounded-lg transition" title="Hapus User"><i class="fa-solid fa-trash-can"></i></button>
             </td>
         `;
         tbody.appendChild(tr);
     });
+}
+
+function openEditUserModal(id) {
+    const user = usersDB.find(u => u.id === id);
+    if (!user) return;
+
+    document.getElementById('editUserId').value = user.id;
+    document.getElementById('editUserNama').value = user.nama;
+    document.getElementById('editUserUsername').value = user.username || user.nis || user.nip;
+    document.getElementById('editUserPassword').value = user.password;
+
+    const detailContainer = document.getElementById('editUserDetailContainer');
+    detailContainer.innerHTML = '';
+
+    if (user.role === 'Siswa') {
+        detailContainer.innerHTML = `
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Kelas</label>
+                <input type="text" id="editUserKelas" value="${user.kelas || ''}" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Walikelas</label>
+                <input type="text" id="editUserWalikelas" value="${user.walikelas || ''}" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white">
+            </div>
+        `;
+    } else if (user.role === 'Guru') {
+        detailContainer.innerHTML = `
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Mata Pelajaran yang Diampu</label>
+                <input type="text" id="editUserMapelGuru" value="${user.mapelGuru || ''}" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white">
+            </div>
+            <div class="flex items-center space-x-2 pt-2">
+                <input type="checkbox" id="editUserIsWalikelas" ${user.isWalikelas ? 'checked' : ''} class="w-4 h-4 text-indigo-600 rounded bg-slate-900 border-slate-700">
+                <label for="editUserIsWalikelas" class="text-xs font-semibold text-indigo-300">Merupakan Walikelas</label>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Kelas Walikelas</label>
+                <input type="text" id="editUserKelasWalikelas" value="${user.kelasWalikelas || ''}" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white">
+            </div>
+        `;
+    } else if (user.role === 'Tendik' || user.role === 'Kepala Sekolah') {
+        detailContainer.innerHTML = `
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Jabatan</label>
+                <input type="text" id="editUserJabatan" value="${user.jabatan || ''}" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white">
+            </div>
+        `;
+    }
+
+    document.getElementById('modalEditUser').classList.remove('hidden');
+}
+
+function handleSaveEditUser(event) {
+    event.preventDefault();
+    const userId = document.getElementById('editUserId').value;
+    const userIndex = usersDB.findIndex(u => u.id === userId);
+
+    if (userIndex !== -1) {
+        usersDB[userIndex].nama = document.getElementById('editUserNama').value.trim();
+        const newUsername = document.getElementById('editUserUsername').value.trim();
+        usersDB[userIndex].username = newUsername;
+        usersDB[userIndex].password = document.getElementById('editUserPassword').value.trim();
+
+        if (usersDB[userIndex].role === 'Siswa') {
+            usersDB[userIndex].nis = newUsername;
+            usersDB[userIndex].kelas = document.getElementById('editUserKelas').value.trim();
+            usersDB[userIndex].walikelas = document.getElementById('editUserWalikelas').value.trim();
+        } else if (usersDB[userIndex].role === 'Guru') {
+            usersDB[userIndex].nip = newUsername;
+            usersDB[userIndex].mapelGuru = document.getElementById('editUserMapelGuru').value.trim();
+            const isWali = document.getElementById('editUserIsWalikelas').checked;
+            usersDB[userIndex].isWalikelas = isWali;
+            usersDB[userIndex].kelasWalikelas = isWali ? document.getElementById('editUserKelasWalikelas').value.trim() : '-';
+        } else if (usersDB[userIndex].role === 'Tendik' || usersDB[userIndex].role === 'Kepala Sekolah') {
+            usersDB[userIndex].jabatan = document.getElementById('editUserJabatan').value.trim();
+        }
+
+        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(usersDB));
+        renderRegisteredUsersTable();
+        closeModal('modalEditUser');
+        showToast('Data user berhasil diperbarui!', 'success');
+    }
+}
+
+function resetUserPassword(id) {
+    const userIndex = usersDB.findIndex(u => u.id === id);
+    if (userIndex !== -1) {
+        const u = usersDB[userIndex];
+        const defaultPass = u.nis || u.nip || '123456';
+        usersDB[userIndex].password = defaultPass;
+        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(usersDB));
+        renderRegisteredUsersTable();
+        showToast(`Password ${u.nama} berhasil direset ke: ${defaultPass}`, 'success');
+    }
 }
 
 function deleteUser(id) {
@@ -1519,6 +1779,105 @@ function deleteUser(id) {
     renderRegisteredUsersTable();
     updateAdminDashboardStats();
     showToast('Data user berhasil dihapus!', 'info');
+}
+
+function openChangePasswordModal() {
+    document.getElementById('modalGantiPassword').classList.remove('hidden');
+}
+
+function handleUserChangePassword(event) {
+    event.preventDefault();
+    const oldPass = document.getElementById('changePassOld').value.trim();
+    const newPass = document.getElementById('changePassNew').value.trim();
+    const confirmPass = document.getElementById('changePassConfirm').value.trim();
+
+    if (oldPass !== currentUser.password) {
+        showToast('Password lama tidak sesuai!', 'error');
+        return;
+    }
+
+    if (newPass !== confirmPass) {
+        showToast('Konfirmasi password baru tidak cocok!', 'error');
+        return;
+    }
+
+    currentUser.password = newPass;
+    localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(currentUser));
+
+    const userIndex = usersDB.findIndex(u => u.id === currentUser.id);
+    if (userIndex !== -1) {
+        usersDB[userIndex].password = newPass;
+        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(usersDB));
+    }
+
+    closeModal('modalGantiPassword');
+    showToast('Password akun Anda berhasil diperbarui!', 'success');
+}
+
+/* Admin Subtabs Navigation & Approval handlers */
+function renderAdminApproveTicketsTable() {
+    const tbody = document.getElementById('adminApproveTicketTable');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    const pendingTickets = ticketsDB.filter(t => t.userRole === 'Guru' || t.userRole === 'Tendik' || t.userRole === 'Kepala Sekolah');
+
+    if (!pendingTickets.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-500 italic">Belum ada pengajuan tiket dari Guru atau Tendik.</td></tr>`;
+        return;
+    }
+
+    pendingTickets.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-800/40 transition";
+        tr.innerHTML = `
+            <td class="p-3 font-bold text-white">${t.userName}</td>
+            <td class="p-3"><span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-indigo-500/20 text-indigo-300">${t.userRole}</span></td>
+            <td class="p-3 text-amber-300 font-semibold">${t.jenis}<br><span class="text-[10px] text-slate-400">${t.tanggalAwal} s/d ${t.tanggalAkhir}</span></td>
+            <td class="p-3 text-slate-300">${t.keterangan}</td>
+            <td class="p-3">${t.lampiran ? `<img src="${t.lampiran}" class="w-10 h-10 object-cover rounded-xl border border-slate-700">` : '-'}</td>
+            <td class="p-3"><span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${t.status === 'Approved' ? 'bg-emerald-500/20 text-emerald-300' : (t.status === 'Rejected' ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300')}">${t.status}</span></td>
+            <td class="p-3 text-center space-x-1.5">
+                <button onclick="approveTicketAdmin('${t.id}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-bold">Setujui</button>
+                <button onclick="rejectTicketAdmin('${t.id}')" class="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-[10px] font-bold">Tolak</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function approveTicketAdmin(id) {
+    const idx = ticketsDB.findIndex(t => t.id === id);
+    if (idx !== -1) {
+        ticketsDB[idx].status = 'Approved';
+        localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(ticketsDB));
+
+        attendanceDB.push({
+            id: 'att-' + Date.now(),
+            userId: ticketsDB[idx].userId,
+            userName: ticketsDB[idx].userName,
+            role: ticketsDB[idx].userRole,
+            kelas: ticketsDB[idx].kelas || '-',
+            tanggal: new Date().toISOString().split('T')[0],
+            jam: new Date().toLocaleTimeString('id-ID'),
+            status: ticketsDB[idx].jenis,
+            foto: ticketsDB[idx].lampiran || 'https://placehold.co/100x100/f59e0b/ffffff?text=IZIN'
+        });
+        localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceDB));
+
+        renderAdminApproveTicketsTable();
+        showToast('Tiket izin pegawai disetujui!', 'success');
+    }
+}
+
+function rejectTicketAdmin(id) {
+    const idx = ticketsDB.findIndex(t => t.id === id);
+    if (idx !== -1) {
+        ticketsDB[idx].status = 'Rejected';
+        localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(ticketsDB));
+        renderAdminApproveTicketsTable();
+        showToast('Tiket izin pegawai ditolak.', 'info');
+    }
 }
 
 /* Settings Subtabs Logic */
@@ -1753,7 +2112,6 @@ function captureSelfie() {
     attendanceDB.push(newEntry);
     localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceDB));
 
-    // Update avatar in top right header
     currentUser.foto = selfieBase64;
     localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(currentUser));
     document.getElementById('headerUserAvatar').src = selfieBase64;
@@ -1869,9 +2227,21 @@ function resetFilterRiwayatUser() {
     renderUserRiwayatTable();
 }
 
-/* Walikelas Approval Modal */
+/* Walikelas & Kepala Sekolah Approval Modal */
 function openApproveModal() {
     document.getElementById('modalApprove').classList.remove('hidden');
+    const headerTitle = document.getElementById('approveModalHeaderTitle');
+
+    if (currentUser.role === 'Kepala Sekolah') {
+        if (headerTitle) {
+            headerTitle.innerHTML = `<i class="fa-solid fa-file-circle-check text-purple-400 mr-2"></i> Approve Permohonan Tiket Guru & Tendik`;
+        }
+    } else {
+        if (headerTitle) {
+            headerTitle.innerHTML = `<i class="fa-solid fa-file-circle-check text-purple-400 mr-2"></i> Approve Permohonan Izin Siswa Kelas`;
+        }
+    }
+
     renderApproveWalikelasTable();
 }
 
@@ -1880,14 +2250,26 @@ function renderApproveWalikelasTable() {
     if (!tbody) return;
 
     tbody.innerHTML = '';
-    // Filter tickets submitted by students of this walikelas' class
-    const pendingTickets = ticketsDB.filter(t => t.userRole === 'Siswa' && t.kelas === currentUser.kelasWalikelas);
+    let pendingTickets = [];
+
+    if (currentUser.role === 'Kepala Sekolah') {
+        // Kepala Sekolah approves tickets from Guru and Tendik
+        pendingTickets = ticketsDB.filter(t => t.userRole === 'Guru' || t.userRole === 'Tendik');
+    } else if (currentUser.role === 'Guru' && currentUser.isWalikelas) {
+        // Walikelas approves tickets from Siswa in their assigned class
+        pendingTickets = ticketsDB.filter(t => t.userRole === 'Siswa' && t.kelas === currentUser.kelasWalikelas);
+    }
+
+    if (!pendingTickets.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500 italic">Tidak ada permohonan tiket pending saat ini.</td></tr>`;
+        return;
+    }
 
     pendingTickets.forEach(t => {
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/40 transition";
         tr.innerHTML = `
-            <td class="p-3 font-bold text-white">${t.userName} <span class="block text-[10px] text-slate-400 font-normal">Kelas ${t.kelas}</span></td>
+            <td class="p-3 font-bold text-white">${t.userName} <span class="block text-[10px] text-slate-400 font-normal">Role: ${t.userRole} | Kelas/Dept: ${t.kelas}</span></td>
             <td class="p-3 text-amber-300 font-semibold">${t.jenis}<br><span class="text-[10px] text-slate-400">${t.tanggalAwal} s/d ${t.tanggalAkhir}</span></td>
             <td class="p-3 text-slate-300">${t.keterangan}</td>
             <td class="p-3">${t.lampiran ? `<img src="${t.lampiran}" class="w-10 h-10 object-cover rounded-xl border border-slate-700">` : '-'}</td>
@@ -1906,7 +2288,6 @@ function approveTicket(id) {
         ticketsDB[idx].status = 'Approved';
         localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(ticketsDB));
 
-        // Auto-add attendance entry for approved student ticket
         attendanceDB.push({
             id: 'att-' + Date.now(),
             userId: ticketsDB[idx].userId,
@@ -1921,7 +2302,7 @@ function approveTicket(id) {
         localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceDB));
 
         renderApproveWalikelasTable();
-        showToast('Tiket izin disetujui secara otomatis terhubung ke mapel!', 'success');
+        showToast('Tiket izin disetujui!', 'success');
     }
 }
 
@@ -1935,9 +2316,12 @@ function rejectTicket(id) {
     }
 }
 
-/* Presensi Mapel Modal (Guru Only) */
+/* Presensi Mapel Modal (Guru & Kepala Sekolah) */
 function openPresensiMapelModal() {
     document.getElementById('modalPresensiMapel').classList.remove('hidden');
+    if (currentUser.mapelGuru) {
+        document.getElementById('presensiMapelNama').value = currentUser.mapelGuru;
+    }
     renderPresensiMapelStudentList();
 }
 
@@ -1950,7 +2334,6 @@ function renderPresensiMapelStudentList() {
 
     tbody.innerHTML = '';
     students.forEach(s => {
-        // Check if student has approved walikelas ticket for today
         const approvedTicket = ticketsDB.find(t => t.userId === s.id && t.status === 'Approved');
         const defaultStatus = approvedTicket ? approvedTicket.jenis : 'Hadir';
 
@@ -1981,7 +2364,6 @@ function savePresensiMapel() {
     const timeStamp = `${new Date().toISOString().split('T')[0]} ${new Date().toLocaleTimeString('id-ID')}`;
 
     selects.forEach(sel => {
-        const studentId = sel.getAttribute('data-student-id');
         const studentName = sel.getAttribute('data-student-name');
         const status = sel.value;
 
