@@ -1,13 +1,8 @@
 /**
- * ==========================================================================
- * SPENSA PRESENSI - ENTERPRISE IT FUNCTION LIBRARY (function.js)
- * Modern Integrated School Attendance Architecture
- * ==========================================================================
+ * SPENSA PRESENSI - Core Function Library v2.5
+ * Architecture: Modular Vanilla JS Utility Functions
  */
 
-/**
- * Storage key constants used to synchronize data with localStorage.
- */
 const STORAGE_KEYS = {
     USERS: 'spensa_users_db',
     ATTENDANCE: 'spensa_attendance_db',
@@ -18,43 +13,39 @@ const STORAGE_KEYS = {
     SESSION: 'spensa_current_session'
 };
 
-/**
- * Default school operational settings and GPS coordinates.
- */
 const defaultSchoolSettings = {
     jamMasuk: '07:15',
     jamPulang: '14:00',
     jumlahHariSekolah: 20,
     radiusMeter: 100,
     lat: -0.7893,
-    lng: 127.3820,
-    aktifHari: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+    lng: 127.3820
 };
 
-/**
- * Global variable for active media stream tracking.
- */
 let activeMediaStream = null;
 
 /**
- * Calculates the geodesic distance between two points on Earth using the Haversine formula.
- * @param {number} lat1 - Latitude of point 1 (in degrees)
- * @param {number} lon1 - Longitude of point 1 (in degrees)
- * @param {number} lat2 - Latitude of point 2 (in degrees)
- * @param {number} lon2 - Longitude of point 2 (in degrees)
- * @returns {number} Distance in meters rounded to nearest integer
+ * Calculates the geodesic distance between two latitude/longitude points in meters using Haversine formula.
+ * @param {number} lat1 - Latitude of point 1
+ * @param {number} lon1 - Longitude of point 1
+ * @param {number} lat2 - Latitude of point 2
+ * @param {number} lon2 - Longitude of point 2
+ * @returns {number} Distance in meters rounded to integer
  */
 function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
-    const EARTH_RADIUS_METERS = 6371000; // Earth's mean radius in meters
-    const dLat = (lat2 - lat1) * (Math.PI / 180);
-    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const R = 6371e3; // Earth's radius in meters
+    const phi1 = (lat1 * Math.PI) / 180;
+    const phi2 = (lat2 * Math.PI) / 180;
+    const deltaPhi = ((lat2 - lat1) * Math.PI) / 180;
+    const deltaLambda = ((lon2 - lon1) * Math.PI) / 180;
 
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const a =
+        Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+        Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return Math.round(EARTH_RADIUS_METERS * c);
+
+    return Math.round(R * c);
 }
 
 /**
@@ -66,9 +57,9 @@ function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
  */
 function verifyGeofenceLocation(userLat, userLng, schoolConfig = defaultSchoolSettings) {
     const distance = calculateHaversineDistance(
-        userLat, 
-        userLng, 
-        schoolConfig.lat, 
+        userLat,
+        userLng,
+        schoolConfig.lat,
         schoolConfig.lng
     );
 
@@ -78,8 +69,8 @@ function verifyGeofenceLocation(userLat, userLng, schoolConfig = defaultSchoolSe
         insideGeofence: isInside,
         distanceMeters: distance,
         allowedRadius: schoolConfig.radiusMeter,
-        statusMessage: isInside 
-            ? `✓ Dalam Radius (${distance}m)` 
+        statusMessage: isInside
+            ? `✓ Dalam Radius (${distance}m)`
             : `❌ Diluar Radius (${distance}m, Max: ${schoolConfig.radiusMeter}m)`
     };
 }
@@ -96,15 +87,15 @@ async function startCameraStream(videoElementId) {
     }
 
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { 
-                width: { ideal: 1280 }, 
-                height: { ideal: 720 }, 
-                facingMode: "user" 
-            }, 
-            audio: false 
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                facingMode: "user"
+            },
+            audio: false
         });
-        
+
         activeMediaStream = stream;
         videoElement.srcObject = stream;
         await videoElement.play();
@@ -129,7 +120,7 @@ function stopCameraStream() {
  * Captures a single frame from video stream onto a canvas and returns Base64 PNG URL.
  * @param {string} videoId - Element ID of video stream
  * @param {string} canvasId - Element ID of hidden/target canvas
- * @returns {string} Data URL string (image/png)
+ * @returns {string|null} Data URL string (image/png)
  */
 function captureWebcamFrame(videoId, canvasId) {
     const video = document.getElementById(videoId);
@@ -150,9 +141,10 @@ function captureWebcamFrame(videoId, canvasId) {
  * Validates user credentials against database records stored in localStorage.
  * Rules:
  * - Admin: Username "Gacor" / Password "spensahalsel"
- * - Siswa: NIS is both Username and Password (dynamically loaded from registered database)
- * - Guru: NIP is both Username and Password (dynamically loaded from registered database)
- * - Tendik: Username & Password set during registration
+ * - Siswa: NIS is both Username and Password
+ * - Guru: NIP is both Username and Password
+ * - Tendik: Custom Username & Password
+ * - Kepala Sekolah: NIP is both Username and Password
  * 
  * @param {string} identifier - Username / NIS / NIP
  * @param {string} password - Input password
@@ -174,7 +166,7 @@ function authenticateCredentials(identifier, password) {
         };
     }
 
-    // Refresh user records from LocalStorage to ensure newly added accounts are immediately checked
+    // Refresh user records from LocalStorage
     const freshUsers = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || [];
 
     return freshUsers.find(user => {
@@ -220,7 +212,7 @@ function clearUserSession() {
 
 /**
  * Validates and constructs new user data structure based on specified role.
- * @param {string} role - 'Siswa', 'Guru', or 'Tendik'
+ * @param {string} role - 'Siswa', 'Guru', 'Tendik', or 'Kepala Sekolah'
  * @param {Object} formData - Form input key-value payload
  * @returns {Object} Processed user record
  */
@@ -248,15 +240,38 @@ function createUserDataRecord(role, formData) {
         baseRecord.username = formData.nip;
         baseRecord.password = formData.nip; // NIP is Username & Password
         baseRecord.nip = formData.nip;
+        baseRecord.mapelGuru = formData.mapelGuru || '-';
         baseRecord.isWalikelas = Boolean(formData.isWalikelas);
         baseRecord.kelasWalikelas = formData.isWalikelas ? formData.kelasWalikelas : '-';
     } else if (role === 'Tendik') {
         baseRecord.username = formData.username;
         baseRecord.password = formData.password;
         baseRecord.jabatan = formData.jabatan || 'Tenaga Kependidikan';
+    } else if (role === 'Kepala Sekolah') {
+        baseRecord.username = formData.nip;
+        baseRecord.password = formData.nip; // NIP is Username & Password
+        baseRecord.nip = formData.nip;
+        baseRecord.jabatan = 'Kepala Sekolah';
     }
 
     return baseRecord;
+}
+
+/**
+ * Resets user password to their default identifier (NIS for Siswa, NIP for Guru/Kepsek, or default value).
+ * @param {Array} usersArray - Global users array
+ * @param {string} userId - Target user ID
+ * @returns {string|null} Reset password or null
+ */
+function resetUserPasswordToDefault(usersArray, userId) {
+    const userIndex = usersArray.findIndex(u => u.id === userId);
+    if (userIndex !== -1) {
+        const targetUser = usersArray[userIndex];
+        const defaultPassword = targetUser.nis || targetUser.nip || '123456';
+        targetUser.password = defaultPassword;
+        return defaultPassword;
+    }
+    return null;
 }
 
 /**
@@ -350,7 +365,7 @@ function generateSubjectAttendanceRecords(subjectName, className, teacherUser, s
 }
 
 /**
- * Creates a new student truant / incident report.
+ * Creates a new truant / incident report.
  * @param {Object} reporterUser - User making the report
  * @param {string} chronologyText - Detailed chronology description
  * @param {string} photoEvidenceBase64 - Camera evidence Base64
@@ -396,7 +411,7 @@ function downloadDataAsCSV(filename, dataRows) {
     const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const downloadAnchor = document.createElement('a');
-    
+
     downloadAnchor.setAttribute('href', url);
     downloadAnchor.setAttribute('download', filename);
     document.body.appendChild(downloadAnchor);
