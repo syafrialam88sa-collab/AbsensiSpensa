@@ -17,12 +17,13 @@ window.STORAGE_KEYS = window.STORAGE_KEYS || {
     THEME: 'spensa_theme_pref'
 };
 
+// Pengaturan Default Sekolah (Contoh Koordinat: Ternate, Maluku Utara)
 window.defaultSchoolSettings = window.defaultSchoolSettings || {
     jamMasuk: '07:15',
     jamPulang: '14:00',
     jumlahHariSekolah: 20,
     radiusMeter: 100,
-    lat: 0.7893,  // Koordinat Default (Contoh: Ternate)
+    lat: 0.7893,  
     lng: 127.3820
 };
 
