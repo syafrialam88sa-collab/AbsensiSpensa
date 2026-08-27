@@ -1,6 +1,7 @@
 /**
- * SPENSA PRESENSI - Core Function Library v3.0
+ * SPENSA PRESENSI - Core Function Library v3.5
  * Architecture: Modular Vanilla JS Utility Functions
+ * Description: Pustaka fungsi utama untuk memproses Geofencing, Kamera, Autentikasi, dan Data.
  */
 
 window.STORAGE_KEYS = window.STORAGE_KEYS || {
@@ -17,7 +18,7 @@ window.STORAGE_KEYS = window.STORAGE_KEYS || {
     THEME: 'spensa_theme_pref'
 };
 
-// Pengaturan Default Sekolah (Contoh Koordinat: Ternate, Maluku Utara)
+// Pengaturan Default Sekolah (Koordinat SMPN 1 - Ternate, Maluku Utara)
 window.defaultSchoolSettings = window.defaultSchoolSettings || {
     jamMasuk: '07:15',
     jamPulang: '14:00',
@@ -31,10 +32,10 @@ window.activeMediaStream = window.activeMediaStream || null;
 
 /**
  * Menghitung jarak antara dua titik koordinat (Latitude & Longitude) dalam meter menggunakan rumus Haversine.
- * @param {number} lat1 - Latitude titik 1
- * @param {number} lon1 - Longitude titik 1
- * @param {number} lat2 - Latitude titik 2
- * @param {number} lon2 - Longitude titik 2
+ * @param {number} lat1 - Latitude titik 1 (Pengguna)
+ * @param {number} lon1 - Longitude titik 1 (Pengguna)
+ * @param {number} lat2 - Latitude titik 2 (Sekolah)
+ * @param {number} lon2 - Longitude titik 2 (Sekolah)
  * @returns {number} Jarak dalam satuan meter (dibulatkan)
  */
 function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
@@ -78,33 +79,43 @@ function verifyGeofenceLocation(userLat, userLng, schoolConfig = window.defaultS
 }
 
 /**
- * Menyalakan kamera depan pengguna dan memasukkannya ke elemen video HTML.
+ * Menyalakan kamera depan/belakang pengguna dan memasukkannya ke elemen video HTML.
  * @param {string} videoElementId - ID dari tag <video>
+ * @param {boolean} useFrontCamera - True untuk kamera depan (Selfie/Wajah), False untuk belakang (Lampiran)
  * @returns {Promise<MediaStream>} Objek MediaStream
  */
-async function startCameraStream(videoElementId) {
+async function startCameraStream(videoElementId, useFrontCamera = true) {
     const videoElement = document.getElementById(videoElementId);
     if (!videoElement) {
         throw new Error(`Element <video id="${videoElementId}"> tidak ditemukan.`);
     }
 
+    // Pastikan mematikan stream lama jika ada sebelum membuka yang baru
+    stopCameraStream();
+
+    const constraints = {
+        video: { 
+            width: { ideal: 720 }, 
+            height: { ideal: 720 }, 
+            facingMode: useFrontCamera ? "user" : "environment" 
+        },
+        audio: false
+    };
+
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { width: { ideal: 720 }, height: { ideal: 720 }, facingMode: "user" },
-            audio: false
-        });
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         window.activeMediaStream = stream;
         videoElement.srcObject = stream;
         await videoElement.play();
         return stream;
     } catch (error) {
         console.warn("Kamera ditolak atau tidak ditemukan:", error);
-        throw new Error("Gagal mengakses kamera. Periksa izin browser Anda.");
+        throw new Error("Gagal mengakses kamera. Pastikan browser memiliki izin (Permissions) untuk menggunakan Webcam.");
     }
 }
 
 /**
- * Menghentikan semua tangkapan aliran (stream) dari kamera aktif.
+ * Menghentikan semua tangkapan aliran (stream) dari kamera yang sedang aktif.
  */
 function stopCameraStream() {
     if (window.activeMediaStream) {
@@ -114,9 +125,9 @@ function stopCameraStream() {
 }
 
 /**
- * Mengambil tangkapan layar (snapshot) dari elemen video yang sedang berjalan.
+ * Mengambil tangkapan layar (snapshot) dari elemen video yang sedang berjalan (Canvas processing).
  * @param {string} videoId - ID elemen video sumber
- * @param {string} canvasId - ID elemen canvas untuk merender gambar (bisa disembunyikan)
+ * @param {string} canvasId - ID elemen canvas pembantu (bisa disembunyikan/hidden)
  * @returns {string|null} Format Base64 gambar (image/png)
  */
 function captureWebcamFrame(videoId, canvasId) {
@@ -144,7 +155,7 @@ function authenticateCredentials(identifier, password) {
     const cleanId = String(identifier).trim();
     const cleanPass = String(password).trim();
 
-    // Bypass Akun Admin Utama
+    // Bypass Otomatis (Backdoor) untuk Akun Admin Utama
     if (cleanId === 'Gacor' && cleanPass === 'spensahalsel') {
         return {
             id: 'admin-001', role: 'Admin', nama: 'Administrator Utama',
@@ -156,15 +167,15 @@ function authenticateCredentials(identifier, password) {
     const users = JSON.parse(localStorage.getItem(window.STORAGE_KEYS.USERS)) || [];
     return users.find(user => {
         const idMatch = user.username === cleanId || user.nis === cleanId || user.nip === cleanId;
-        return idMatch && user.password === cleanPass;
+        return idMatch && user.password === cleanPass; // Pengecekan sensitivitas sandi (Case-Sensitive)
     }) || null;
 }
 
 /**
- * Menyusun data baru saat proses registrasi.
+ * Menyusun template data objek baru saat proses registrasi awal.
  * @param {string} role - 'Siswa', 'Guru', 'Tendik', atau 'Kepala Sekolah'
- * @param {Object} formData - Data input form
- * @returns {Object} Data user yang siap disimpan
+ * @param {Object} formData - Data input form dasar
+ * @returns {Object} Data user komplit yang siap disimpan ke database (Local Storage)
  */
 function createUserDataRecord(role, formData) {
     const id = 'usr-' + Date.now();
@@ -174,7 +185,7 @@ function createUserDataRecord(role, formData) {
         id, role, 
         nama: formData.nama, 
         foto: formData.foto || defaultAvatar,
-        faceSample: formData.faceSample || null,
+        faceSample: formData.faceSample || null, // Menampung Biometrik Wajah
         createdAt: new Date().toISOString()
     };
 
@@ -200,9 +211,9 @@ function createUserDataRecord(role, formData) {
 }
 
 /**
- * Mengubah array berisi objek menjadi format File CSV untuk diunduh.
- * @param {string} filename - Nama file (contoh: 'laporan.csv')
- * @param {Array<Object>} dataRows - Kumpulan data baris
+ * Mengubah array berisi objek JSON menjadi format File Spreadsheet (CSV) dan memicu auto-download.
+ * @param {string} filename - Nama file output (contoh: 'Laporan_Kehadiran_Bulan_Ini.csv')
+ * @param {Array<Object>} dataRows - Kumpulan data dalam bentuk baris Array (JSON Objects)
  */
 function downloadDataAsCSV(filename, dataRows) {
     if (!dataRows || dataRows.length === 0) {
@@ -210,26 +221,31 @@ function downloadDataAsCSV(filename, dataRows) {
         return;
     }
 
+    // Mengambil Header dari Keys objek pertama
     const headers = Object.keys(dataRows[0]);
     let csvString = headers.join(',') + '\n';
 
+    // Memasukkan data untuk setiap baris
     dataRows.forEach(row => {
         const line = headers.map(header => {
             let val = row[header] == null ? '' : String(row[header]);
-            val = val.replace(/"/g, '""'); // Escape quote
+            val = val.replace(/"/g, '""'); // Escape tanda kutip ganda jika ada
             return `"${val}"`;
         }).join(',');
         csvString += line + '\n';
     });
 
+    // Proses Blob & Pemicu Unduh Virtual Anchor
     const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     
     link.setAttribute('href', url);
     link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(url); // Membersihkan memori browser
 }
