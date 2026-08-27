@@ -558,7 +558,7 @@
                 if(id === 'Gacor' && pass === 'spensahalsel') {
                     user = { id: 'admin-1', role: 'Admin', nama: 'Administrator Utama', foto: 'https://placehold.co/100' };
                 } else {
-                    user = window.usersDB.find(u => (u.username === id || u.nis === id || u.nip === id) && u.password === pass);
+                    user = window.usersDB.find(u => u.username !== '' && u.username === id && u.password === pass);
                 }
 
                 if(user) {
