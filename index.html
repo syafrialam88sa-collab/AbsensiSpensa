@@ -536,6 +536,23 @@
             }
         }
 
+        // Fungsi untuk toggle lihat sandi
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input && icon) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+        }
+
         // 3. Data Loading & Authentication
         function loadStorageData() {
             window.usersDB = JSON.parse(localStorage.getItem(window.STORAGE_KEYS.USERS)) || [];
@@ -558,7 +575,16 @@
                 if(id === 'Gacor' && pass === 'spensahalsel') {
                     user = { id: 'admin-1', role: 'Admin', nama: 'Administrator Utama', foto: 'https://placehold.co/100' };
                 } else {
-                    user = window.usersDB.find(u => u.username !== '' && u.username === id && u.password === pass);
+                    user = window.usersDB.find(u => {
+                        // Jika akses telah dicabut secara manual oleh Admin, tolak login
+                        if (u.username === '' && u.password === '') return false;
+                        
+                        // Menangani tipe data (angka vs string) dan kompatibilitas akun lama
+                        const validUser = String(u.username || u.nis || u.nip || '').trim();
+                        const validPass = String(u.password || (u.role === 'Tendik' ? '123456' : (u.nis || u.nip)) || '').trim();
+                        
+                        return validUser === id && validPass === pass;
+                    });
                 }
 
                 if(user) {
