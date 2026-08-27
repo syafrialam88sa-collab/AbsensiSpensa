@@ -379,15 +379,15 @@
         
         <!-- MODAL: Tambah User ID -->
         <div id="modalTambahUserId" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-            <div class="glass-card w-full max-w-sm p-6">
+            <div class="glass-card w-full max-w-sm p-6 animate-fade-in-up">
                 <h3 id="titleModalUserId" class="font-bold text-lg mb-4 text-brand-600 dark:text-brand-400">Tambah User ID & Password</h3>
                 <label class="text-xs font-bold text-slate-500 block mb-1">Pilih Nama Pengguna (Terdaftar)</label>
-                <select id="selectUserId" class="w-full p-3 mb-3 border rounded-xl dark:bg-slate-800 focus:outline-brand-500" onchange="alert('Otomatis mengisi User ID & Password (Visual Demo)')"></select>
+                <select id="selectUserId" class="w-full p-3 mb-3 border rounded-xl dark:bg-slate-800 focus:outline-brand-500" onchange="handleUserIdSelect()"></select>
                 <input type="text" id="inputNewUsername" placeholder="Username / NIS / NIP" class="w-full p-3 mb-3 border rounded-xl dark:bg-slate-800 focus:outline-brand-500">
                 <input type="password" id="inputNewPassword" placeholder="Password" class="w-full p-3 mb-4 border rounded-xl dark:bg-slate-800 focus:outline-brand-500">
                 <div class="flex gap-2">
                     <button onclick="closeModal('modalTambahUserId')" class="flex-1 p-3 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-xl font-bold transition-colors">Batal</button>
-                    <button onclick="alert('User ID & Password disimpan!'); closeModal('modalTambahUserId');" class="flex-1 p-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-colors">Simpan</button>
+                    <button onclick="saveUserId()" class="flex-1 p-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold shadow-lg shadow-brand-500/30 transition-all hover:-translate-y-0.5">Simpan</button>
                 </div>
             </div>
         </div>
@@ -412,6 +412,32 @@
                 <div class="flex gap-2">
                     <button onclick="closeModal('modalTambahMapel')" class="flex-1 p-3 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-xl font-bold transition-colors">Batal</button>
                     <button onclick="saveNewMapel()" class="flex-1 p-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/30 transition-all hover:-translate-y-0.5">Simpan</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: Atur Guru Piket -->
+        <div id="modalAturPiket" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <div class="glass-card w-full max-w-sm p-6 animate-fade-in-up">
+                <h3 class="font-bold text-lg mb-4 text-purple-700 dark:text-purple-400"><i class="fas fa-shield-halved text-purple-500 mr-2"></i>Atur Guru Piket</h3>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Pilih Hari Piket</label>
+                <select id="piketHari" class="w-full p-3 mb-3 border rounded-xl dark:bg-slate-800 focus:outline-purple-500">
+                    <option value="">-- Pilih Hari --</option>
+                    <option value="Senin">Senin</option>
+                    <option value="Selasa">Selasa</option>
+                    <option value="Rabu">Rabu</option>
+                    <option value="Kamis">Kamis</option>
+                    <option value="Jumat">Jumat</option>
+                    <option value="Sabtu">Sabtu</option>
+                </select>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Pilih Guru (Dari Data Registrasi)</label>
+                <select id="piketGuru" class="w-full p-3 mb-5 border rounded-xl dark:bg-slate-800 focus:outline-purple-500">
+                    <option value="">-- Pilih Guru --</option>
+                    <!-- Opsi guru akan disuntikkan secara otomatis dari script JS -->
+                </select>
+                <div class="flex gap-2">
+                    <button onclick="closeModal('modalAturPiket')" class="flex-1 p-3 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-xl font-bold transition-colors">Batal</button>
+                    <button onclick="simpanPiket()" class="flex-1 p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold shadow-lg shadow-purple-500/30 transition-all hover:-translate-y-0.5">Simpan Jadwal</button>
                 </div>
             </div>
         </div>
@@ -479,6 +505,14 @@
                 m.style.opacity = '0';
                 setTimeout(() => { m.classList.add('hidden'); m.style.opacity = '1'; }, 300);
                 if(typeof stopCameraStream === 'function') stopCameraStream();
+            }
+        }
+
+        function openModal(id) {
+            const m = document.getElementById(id);
+            if(m) {
+                m.classList.remove('hidden');
+                setTimeout(() => { m.style.opacity = '1'; m.classList.add('animate-fade-in-up'); }, 10);
             }
         }
 
@@ -924,21 +958,15 @@
         }
 
         function tangkapFotoUmum() {
-            showToast('Menangkap gambar...', 'info');
+            showToast('Menangkap & memproses gambar...', 'info');
             setTimeout(() => {
-                if(activeKameraTarget === 'sampel') {
-                    document.getElementById('regFaceSample').value = 'captured_base64';
-                    showToast('Sampel Wajah Biometrik Tersimpan!', 'success');
-                } else if (activeKameraTarget === 'tiket') {
-                    document.getElementById('tiketLampiran').value = 'captured_base64';
+                if (activeKameraTarget === 'tiket') {
                     showToast('Bukti Lampiran Tiket Tersimpan!', 'success');
                 } else if (activeKameraTarget === 'lapor') {
-                    document.getElementById('laporLampiran').value = 'captured_base64';
                     showToast('Bukti Laporan Kejadian Tersimpan!', 'success');
                 }
-                closeModal('modalKameraUmum');
-                document.getElementById('kameraUmumStatus').innerHTML = '<i class="fas fa-camera text-4xl mb-2 opacity-50"></i><p class="text-xs">Memulai Kamera...</p>';
-            }, 600);
+                closeModalKameraUmum();
+            }, 800);
         }
 
         function filterRiwayat() {
@@ -962,11 +990,67 @@
         }
 
         function simpanPiket() {
-            const guru = document.getElementById('piketGuru').value;
+            const guruId = document.getElementById('piketGuru').value;
             const hari = document.getElementById('piketHari').value;
-            if(!guru || !hari) return showToast('Lengkapi formulir piket!', 'error');
-            showToast(`Status: Guru Piket untuk hari ${hari} berhasil diatur!`, 'success');
+            
+            if(!guruId || !hari) return showToast('Lengkapi formulir piket (Pilih Hari & Guru)!', 'error');
+            
+            // Mencari data guru dari Data Registrasi
+            const guru = window.usersDB.find(u => u.id === guruId);
+            if(!guru) return showToast('Guru tidak ditemukan!', 'error');
+
+            let piketList = JSON.parse(localStorage.getItem(window.STORAGE_KEYS.PIKET)) || {};
+            
+            // Simpan guru yang dipilih ke hari yang ditentukan
+            piketList[hari] = { id: guru.id, nama: guru.nama };
+            localStorage.setItem(window.STORAGE_KEYS.PIKET, JSON.stringify(piketList));
+            
+            showToast(`Guru Piket untuk hari ${hari} berhasil diatur!`, 'success');
             closeModal('modalAturPiket');
+            
+            // Reset input modal
+            document.getElementById('piketHari').value = '';
+            document.getElementById('piketGuru').value = '';
+            
+            renderGuruPiket();
+        }
+
+        function renderGuruPiket() {
+            const piketList = JSON.parse(localStorage.getItem(window.STORAGE_KEYS.PIKET)) || {};
+            const container = document.getElementById('adminGuruPiketList');
+            if(!container) return;
+            
+            const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            let html = '';
+            
+            days.forEach(day => {
+                if(piketList[day]) {
+                    const p = piketList[day];
+                    html += `
+                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 hover-lift mb-2 transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-md">${day.substring(0,3)}</div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 dark:text-white">${p.nama}</p>
+                                <p class="text-[10px] text-purple-500 uppercase font-semibold tracking-wider">Guru Piket - ${day}</p>
+                            </div>
+                        </div>
+                        <button onclick="hapusPiket('${day}')" class="text-rose-500 p-2 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-lg transition-colors" title="Hapus Jadwal"><i class="fas fa-trash"></i></button>
+                    </div>`;
+                }
+            });
+            
+            container.innerHTML = html || '<div class="text-center p-4 text-slate-400 italic text-sm">Belum ada guru piket diatur.</div>';
+        }
+
+        function hapusPiket(hari) {
+            if(confirm(`Yakin ingin menghapus jadwal piket untuk hari ${hari}?`)) {
+                let piketList = JSON.parse(localStorage.getItem(window.STORAGE_KEYS.PIKET)) || {};
+                delete piketList[hari];
+                localStorage.setItem(window.STORAGE_KEYS.PIKET, JSON.stringify(piketList));
+                renderGuruPiket();
+                showToast(`Jadwal piket ${hari} berhasil dihapus.`, 'info');
+            }
         }
 
         // --- MANAJEMEN KELAS & MAPEL ---
@@ -1053,6 +1137,7 @@
             if(localStorage.getItem(window.STORAGE_KEYS.THEME) === 'dark') document.documentElement.classList.add('dark');
             loadStorageData();
             renderRuangLists(); // Muat data kelas dan mapel
+            renderGuruPiket();  // Muat daftar guru piket pada dashboard
             
             setInterval(() => {
                 const now = new Date();
