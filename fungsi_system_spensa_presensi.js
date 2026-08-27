@@ -1,47 +1,51 @@
 /**
- * SPENSA PRESENSI - Core Function Library v2.5
+ * SPENSA PRESENSI - Core Function Library v3.0
  * Architecture: Modular Vanilla JS Utility Functions
  */
 
-const STORAGE_KEYS = {
+window.STORAGE_KEYS = window.STORAGE_KEYS || {
     USERS: 'spensa_users_db',
     ATTENDANCE: 'spensa_attendance_db',
     TICKETS: 'spensa_tickets_db',
     MAPEL_ATTENDANCE: 'spensa_mapel_db',
     INCIDENTS: 'spensa_incidents_db',
     SETTINGS: 'spensa_settings_db',
-    SESSION: 'spensa_current_session'
+    PIKET: 'spensa_piket_db',
+    KELAS_LIST: 'spensa_kelas_list',
+    MAPEL_LIST: 'spensa_mapel_list',
+    SESSION: 'spensa_current_session',
+    THEME: 'spensa_theme_pref'
 };
 
-const defaultSchoolSettings = {
+window.defaultSchoolSettings = window.defaultSchoolSettings || {
     jamMasuk: '07:15',
     jamPulang: '14:00',
     jumlahHariSekolah: 20,
     radiusMeter: 100,
-    lat: -0.7893,
+    lat: 0.7893,  // Koordinat Default (Contoh: Ternate)
     lng: 127.3820
 };
 
-let activeMediaStream = null;
+window.activeMediaStream = window.activeMediaStream || null;
 
 /**
- * Calculates the geodesic distance between two latitude/longitude points in meters using Haversine formula.
- * @param {number} lat1 - Latitude of point 1
- * @param {number} lon1 - Longitude of point 1
- * @param {number} lat2 - Latitude of point 2
- * @param {number} lon2 - Longitude of point 2
- * @returns {number} Distance in meters rounded to integer
+ * Menghitung jarak antara dua titik koordinat (Latitude & Longitude) dalam meter menggunakan rumus Haversine.
+ * @param {number} lat1 - Latitude titik 1
+ * @param {number} lon1 - Longitude titik 1
+ * @param {number} lat2 - Latitude titik 2
+ * @param {number} lon2 - Longitude titik 2
+ * @returns {number} Jarak dalam satuan meter (dibulatkan)
  */
 function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371e3; // Earth's radius in meters
+    const R = 6371e3; // Radius bumi dalam meter
     const phi1 = (lat1 * Math.PI) / 180;
     const phi2 = (lat2 * Math.PI) / 180;
     const deltaPhi = ((lat2 - lat1) * Math.PI) / 180;
     const deltaLambda = ((lon2 - lon1) * Math.PI) / 180;
 
-    const a =
-        Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
-        Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+    const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+              Math.cos(phi1) * Math.cos(phi2) * 
+              Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
@@ -49,18 +53,15 @@ function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
 }
 
 /**
- * Verifies if user coordinates are within the defined school geofence radius.
- * @param {number} userLat - User current latitude
- * @param {number} userLng - User current longitude
- * @param {Object} schoolConfig - School location settings object
- * @returns {Object} Result object containing insideGeofence status, distance, and status badge text
+ * Memverifikasi apakah lokasi pengguna saat ini berada dalam radius Geofence sekolah.
+ * @param {number} userLat - Latitude pengguna
+ * @param {number} userLng - Longitude pengguna
+ * @param {Object} schoolConfig - Pengaturan lokasi dan radius sekolah
+ * @returns {Object} Status dalam geofence, jarak, dan pesan
  */
-function verifyGeofenceLocation(userLat, userLng, schoolConfig = defaultSchoolSettings) {
+function verifyGeofenceLocation(userLat, userLng, schoolConfig = window.defaultSchoolSettings) {
     const distance = calculateHaversineDistance(
-        userLat,
-        userLng,
-        schoolConfig.lat,
-        schoolConfig.lng
+        userLat, userLng, schoolConfig.lat, schoolConfig.lng
     );
 
     const isInside = distance <= schoolConfig.radiusMeter;
@@ -71,14 +72,14 @@ function verifyGeofenceLocation(userLat, userLng, schoolConfig = defaultSchoolSe
         allowedRadius: schoolConfig.radiusMeter,
         statusMessage: isInside
             ? `✓ Dalam Radius (${distance}m)`
-            : `❌ Diluar Radius (${distance}m, Max: ${schoolConfig.radiusMeter}m)`
+            : `❌ Diluar Radius (${distance}m / Max: ${schoolConfig.radiusMeter}m)`
     };
 }
 
 /**
- * Requests and initializes user webcam media stream.
- * @param {string} videoElementId - Target <video> tag ID
- * @returns {Promise<MediaStream>} Stream promise
+ * Menyalakan kamera depan pengguna dan memasukkannya ke elemen video HTML.
+ * @param {string} videoElementId - ID dari tag <video>
+ * @returns {Promise<MediaStream>} Objek MediaStream
  */
 async function startCameraStream(videoElementId) {
     const videoElement = document.getElementById(videoElementId);
@@ -88,39 +89,34 @@ async function startCameraStream(videoElementId) {
 
     try {
         const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                width: { ideal: 1280 },
-                height: { ideal: 720 },
-                facingMode: "user"
-            },
+            video: { width: { ideal: 720 }, height: { ideal: 720 }, facingMode: "user" },
             audio: false
         });
-
-        activeMediaStream = stream;
+        window.activeMediaStream = stream;
         videoElement.srcObject = stream;
         await videoElement.play();
         return stream;
     } catch (error) {
-        console.warn("Camera stream initialization failed:", error);
-        throw new Error("Gagal mengaktifkan kamera. Pastikan izin kamera telah diberikan.");
+        console.warn("Kamera ditolak atau tidak ditemukan:", error);
+        throw new Error("Gagal mengakses kamera. Periksa izin browser Anda.");
     }
 }
 
 /**
- * Stops all active media tracks for video streams.
+ * Menghentikan semua tangkapan aliran (stream) dari kamera aktif.
  */
 function stopCameraStream() {
-    if (activeMediaStream) {
-        activeMediaStream.getTracks().forEach(track => track.stop());
-        activeMediaStream = null;
+    if (window.activeMediaStream) {
+        window.activeMediaStream.getTracks().forEach(track => track.stop());
+        window.activeMediaStream = null;
     }
 }
 
 /**
- * Captures a single frame from video stream onto a canvas and returns Base64 PNG URL.
- * @param {string} videoId - Element ID of video stream
- * @param {string} canvasId - Element ID of hidden/target canvas
- * @returns {string|null} Data URL string (image/png)
+ * Mengambil tangkapan layar (snapshot) dari elemen video yang sedang berjalan.
+ * @param {string} videoId - ID elemen video sumber
+ * @param {string} canvasId - ID elemen canvas untuk merender gambar (bisa disembunyikan)
+ * @returns {string|null} Format Base64 gambar (image/png)
  */
 function captureWebcamFrame(videoId, canvasId) {
     const video = document.getElementById(videoId);
@@ -128,8 +124,8 @@ function captureWebcamFrame(videoId, canvasId) {
 
     if (!video || !canvas) return null;
 
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
+    canvas.width = video.videoWidth || 400;
+    canvas.height = video.videoHeight || 400;
 
     const context = canvas.getContext('2d');
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -138,261 +134,78 @@ function captureWebcamFrame(videoId, canvasId) {
 }
 
 /**
- * Validates user credentials against database records stored in localStorage.
- * Rules:
- * - Admin: Username "Gacor" / Password "spensahalsel"
- * - Siswa: NIS is both Username and Password
- * - Guru: NIP is both Username and Password
- * - Tendik: Custom Username & Password
- * - Kepala Sekolah: NIP is both Username and Password
- * 
- * @param {string} identifier - Username / NIS / NIP
- * @param {string} password - Input password
- * @returns {Object|null} Authenticated user record or null
+ * Memvalidasi input pengguna dengan data di LocalStorage.
+ * @param {string} identifier - ID, NIS, NIP, atau Username
+ * @param {string} password - Kata sandi
+ * @returns {Object|null} Mengembalikan data akun jika cocok, atau null
  */
 function authenticateCredentials(identifier, password) {
     const cleanId = String(identifier).trim();
     const cleanPass = String(password).trim();
 
-    // Check Hardcoded Admin Account
+    // Bypass Akun Admin Utama
     if (cleanId === 'Gacor' && cleanPass === 'spensahalsel') {
         return {
-            id: 'admin-001',
-            nama: 'Administrator Utama',
-            username: 'Gacor',
-            password: 'spensahalsel',
-            role: 'Admin',
+            id: 'admin-001', role: 'Admin', nama: 'Administrator Utama',
+            username: 'Gacor', password: 'spensahalsel', 
             foto: 'https://placehold.co/100x100/6366f1/ffffff?text=ADM'
         };
     }
 
-    // Refresh user records from LocalStorage
-    const freshUsers = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || [];
-
-    return freshUsers.find(user => {
-        const matchUsername = user.username === cleanId;
-        const matchNIS = user.nis && user.nis === cleanId;
-        const matchNIP = user.nip && user.nip === cleanId;
-
-        return (matchUsername || matchNIS || matchNIP) && user.password === cleanPass;
+    const users = JSON.parse(localStorage.getItem(window.STORAGE_KEYS.USERS)) || [];
+    return users.find(user => {
+        const idMatch = user.username === cleanId || user.nis === cleanId || user.nip === cleanId;
+        return idMatch && user.password === cleanPass;
     }) || null;
 }
 
 /**
- * Stores active user session in localStorage.
- * @param {Object} userObj - Authenticated user payload
- */
-function saveUserSession(userObj) {
-    try {
-        localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(userObj));
-    } catch (e) {
-        console.error("Session save error:", e);
-    }
-}
-
-/**
- * Retrieves logged-in user from active session.
- * @returns {Object|null} User session payload
- */
-function getSavedSession() {
-    try {
-        const session = localStorage.getItem(STORAGE_KEYS.SESSION);
-        return session ? JSON.parse(session) : null;
-    } catch (e) {
-        return null;
-    }
-}
-
-/**
- * Clears active user session on logout.
- */
-function clearUserSession() {
-    localStorage.removeItem(STORAGE_KEYS.SESSION);
-}
-
-/**
- * Validates and constructs new user data structure based on specified role.
- * @param {string} role - 'Siswa', 'Guru', 'Tendik', or 'Kepala Sekolah'
- * @param {Object} formData - Form input key-value payload
- * @returns {Object} Processed user record
+ * Menyusun data baru saat proses registrasi.
+ * @param {string} role - 'Siswa', 'Guru', 'Tendik', atau 'Kepala Sekolah'
+ * @param {Object} formData - Data input form
+ * @returns {Object} Data user yang siap disimpan
  */
 function createUserDataRecord(role, formData) {
     const id = 'usr-' + Date.now();
     const defaultAvatar = `https://placehold.co/100x100/4f46e5/ffffff?text=${encodeURIComponent(role)}`;
-
-    let baseRecord = {
-        id,
-        role,
-        nama: formData.nama,
+    
+    let record = {
+        id, role, 
+        nama: formData.nama, 
         foto: formData.foto || defaultAvatar,
+        faceSample: formData.faceSample || null,
         createdAt: new Date().toISOString()
     };
 
     if (role === 'Siswa') {
-        baseRecord.username = formData.nis;
-        baseRecord.password = formData.nis; // NIS is Username & Password
-        baseRecord.nis = formData.nis;
-        baseRecord.ttl = formData.ttl || '-';
-        baseRecord.alamat = formData.alamat || '-';
-        baseRecord.kelas = formData.kelas || '-';
-        baseRecord.walikelas = formData.walikelas || '-';
+        record.username = formData.nis;
+        record.password = formData.nis;
+        record.nis = formData.nis;
+        record.kelas = formData.kelas;
+        record.walikelas = formData.walikelas;
     } else if (role === 'Guru') {
-        baseRecord.username = formData.nip;
-        baseRecord.password = formData.nip; // NIP is Username & Password
-        baseRecord.nip = formData.nip;
-        baseRecord.mapelGuru = formData.mapelGuru || '-';
-        baseRecord.isWalikelas = Boolean(formData.isWalikelas);
-        baseRecord.kelasWalikelas = formData.isWalikelas ? formData.kelasWalikelas : '-';
-    } else if (role === 'Tendik') {
-        baseRecord.username = formData.username;
-        baseRecord.password = formData.password;
-        baseRecord.jabatan = formData.jabatan || 'Tenaga Kependidikan';
-    } else if (role === 'Kepala Sekolah') {
-        baseRecord.username = formData.nip;
-        baseRecord.password = formData.nip; // NIP is Username & Password
-        baseRecord.nip = formData.nip;
-        baseRecord.jabatan = 'Kepala Sekolah';
+        record.username = formData.nip;
+        record.password = formData.nip;
+        record.nip = formData.nip;
+        record.mapel = formData.mapel;
+    } else if (role === 'Tendik' || role === 'Kepala Sekolah') {
+        record.username = formData.nip;
+        record.password = formData.nip;
+        record.nip = formData.nip;
+        record.jabatan = formData.jabatan || role;
     }
 
-    return baseRecord;
+    return record;
 }
 
 /**
- * Resets user password to their default identifier (NIS for Siswa, NIP for Guru/Kepsek, or default value).
- * @param {Array} usersArray - Global users array
- * @param {string} userId - Target user ID
- * @returns {string|null} Reset password or null
- */
-function resetUserPasswordToDefault(usersArray, userId) {
-    const userIndex = usersArray.findIndex(u => u.id === userId);
-    if (userIndex !== -1) {
-        const targetUser = usersArray[userIndex];
-        const defaultPassword = targetUser.nis || targetUser.nip || '123456';
-        targetUser.password = defaultPassword;
-        return defaultPassword;
-    }
-    return null;
-}
-
-/**
- * Processes and appends attendance check-in payload.
- * @param {Object} user - Active user
- * @param {string} selfieBase64 - Selfie photo Base64 string
- * @param {Object} geofenceStatus - Location check result
- * @returns {Object} New attendance record
- */
-function buildAttendanceEntry(user, selfieBase64, geofenceStatus = {}) {
-    const now = new Date();
-    const dateFormatted = now.toISOString().split('T')[0];
-    const timeFormatted = now.toLocaleTimeString('id-ID', { hour12: false });
-
-    return {
-        id: 'att-' + Date.now(),
-        userId: user.id,
-        userName: user.nama,
-        role: user.role,
-        kelas: user.kelas || user.kelasWalikelas || '-',
-        tanggal: dateFormatted,
-        jam: timeFormatted,
-        status: 'Hadir',
-        foto: selfieBase64,
-        insideGeofence: geofenceStatus.insideGeofence !== undefined ? geofenceStatus.insideGeofence : true,
-        distanceMeters: geofenceStatus.distanceMeters || 0
-    };
-}
-
-/**
- * Constructs new permission ticket request object.
- * @param {Object} user - Submitting user
- * @param {Object} ticketPayload - Form inputs (jenis, tanggalAwal, tanggalAkhir, keterangan, lampiran)
- * @returns {Object} Ticket record
- */
-function createPermissionTicket(user, ticketPayload) {
-    return {
-        id: 'tkt-' + Date.now(),
-        userId: user.id,
-        userName: user.nama,
-        userRole: user.role,
-        kelas: user.kelas || user.kelasWalikelas || '-',
-        jenis: ticketPayload.jenis, // 'Izin', 'Sakit', or 'Tugas'
-        tanggalAwal: ticketPayload.tanggalAwal,
-        tanggalAkhir: ticketPayload.tanggalAkhir,
-        keterangan: ticketPayload.keterangan,
-        lampiran: ticketPayload.lampiran || null,
-        status: 'Pending',
-        createdAt: new Date().toISOString()
-    };
-}
-
-/**
- * Updates status of permission ticket (Approve / Reject).
- * @param {Array} ticketsArray - Reference tickets array
- * @param {string} ticketId - Target ticket ID
- * @param {string} newStatus - 'Approved' or 'Rejected'
- * @returns {boolean} Success status
- */
-function updateTicketApprovalStatus(ticketsArray, ticketId, newStatus) {
-    const targetIndex = ticketsArray.findIndex(t => t.id === ticketId);
-    if (targetIndex !== -1) {
-        ticketsArray[targetIndex].status = newStatus;
-        ticketsArray[targetIndex].updatedAt = new Date().toISOString();
-        return true;
-    }
-    return false;
-}
-
-/**
- * Generates subject attendance entries for students in a class session.
- * @param {string} subjectName - Course name (e.g., Matematika)
- * @param {string} className - Class identifier (e.g., VII-A)
- * @param {Object} teacherUser - Logged in teacher
- * @param {Array} studentStatusList - Array of { studentName, status }
- * @returns {Array} List of subject attendance records
- */
-function generateSubjectAttendanceRecords(subjectName, className, teacherUser, studentStatusList) {
-    const now = new Date();
-    const timeStamp = `${now.toISOString().split('T')[0]} ${now.toLocaleTimeString('id-ID')}`;
-
-    return studentStatusList.map(item => ({
-        id: 'mapel-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-        waktu: timeStamp,
-        mapel: subjectName,
-        kelas: className,
-        guruName: teacherUser.nama,
-        siswaName: item.studentName,
-        status: item.status // 'Hadir', 'Izin', 'Sakit', 'Alpa'
-    }));
-}
-
-/**
- * Creates a new truant / incident report.
- * @param {Object} reporterUser - User making the report
- * @param {string} chronologyText - Detailed chronology description
- * @param {string} photoEvidenceBase64 - Camera evidence Base64
- * @returns {Object} Incident report record
- */
-function buildIncidentReport(reporterUser, chronologyText, photoEvidenceBase64) {
-    const now = new Date();
-    const timeFormatted = `${now.toISOString().split('T')[0]} ${now.toLocaleTimeString('id-ID')}`;
-
-    return {
-        id: 'rep-' + Date.now(),
-        pelaporName: reporterUser.nama,
-        pelaporRole: reporterUser.role,
-        kronologi: chronologyText,
-        foto: photoEvidenceBase64,
-        waktu: timeFormatted
-    };
-}
-
-/**
- * Converts array of objects into CSV format and triggers browser file download.
- * @param {string} filename - Output filename (e.g., rekap_presensi.csv)
- * @param {Array<Object>} dataRows - Array of structured objects
+ * Mengubah array berisi objek menjadi format File CSV untuk diunduh.
+ * @param {string} filename - Nama file (contoh: 'laporan.csv')
+ * @param {Array<Object>} dataRows - Kumpulan data baris
  */
 function downloadDataAsCSV(filename, dataRows) {
-    if (!dataRows || !dataRows.length) {
-        console.warn("Tidak ada data untuk diekspor ke CSV.");
+    if (!dataRows || dataRows.length === 0) {
+        alert("Tidak ada data untuk diekspor!");
         return;
     }
 
@@ -401,8 +214,8 @@ function downloadDataAsCSV(filename, dataRows) {
 
     dataRows.forEach(row => {
         const line = headers.map(header => {
-            let val = row[header] === null || row[header] === undefined ? '' : String(row[header]);
-            val = val.replace(/"/g, '""'); // Escape double quotes
+            let val = row[header] == null ? '' : String(row[header]);
+            val = val.replace(/"/g, '""'); // Escape quote
             return `"${val}"`;
         }).join(',');
         csvString += line + '\n';
@@ -410,26 +223,12 @@ function downloadDataAsCSV(filename, dataRows) {
 
     const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const downloadAnchor = document.createElement('a');
-
-    downloadAnchor.setAttribute('href', url);
-    downloadAnchor.setAttribute('download', filename);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    document.body.removeChild(downloadAnchor);
+    const link = document.createElement('a');
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     URL.revokeObjectURL(url);
-}
-
-/**
- * Formats JS Date object into standard Indonesian Long Date string.
- * @param {Date} date - JS Date instance
- * @returns {string} Formatted Indonesian date string
- */
-function formatIndonesianFullDate(date = new Date()) {
-    return date.toLocaleDateString('id-ID', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
 }
