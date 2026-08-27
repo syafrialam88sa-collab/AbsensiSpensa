@@ -239,7 +239,7 @@
                     <div class="glass-card p-6 mb-6">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-xl font-bold border-b pb-2 w-full flex justify-between">Pengaturan Kredensial User ID
-                                <button onclick="openModal('modalTambahUserId')" class="text-xs bg-brand-100 text-brand-600 px-3 py-1.5 rounded-lg font-bold"><i class="fas fa-plus"></i> Tambah User ID</button>
+                                <button onclick="openAddUserModal()" class="text-xs bg-brand-100 text-brand-600 px-3 py-1.5 rounded-lg font-bold hover:scale-105 transition-transform"><i class="fas fa-plus"></i> Tambah User ID</button>
                             </h3>
                         </div>
                         <div class="overflow-x-auto">
@@ -363,7 +363,7 @@
         <!-- MODAL: Tambah User ID -->
         <div id="modalTambahUserId" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
             <div class="glass-card w-full max-w-sm p-6">
-                <h3 class="font-bold text-lg mb-4 text-brand-600 dark:text-brand-400">Tambah User ID & Password</h3>
+                <h3 id="titleModalUserId" class="font-bold text-lg mb-4 text-brand-600 dark:text-brand-400">Tambah User ID & Password</h3>
                 <label class="text-xs font-bold text-slate-500 block mb-1">Pilih Nama Pengguna (Terdaftar)</label>
                 <select id="selectUserId" class="w-full p-3 mb-3 border rounded-xl dark:bg-slate-800 focus:outline-brand-500" onchange="alert('Otomatis mengisi User ID & Password (Visual Demo)')"></select>
                 <input type="text" id="inputNewUsername" placeholder="Username / NIS / NIP" class="w-full p-3 mb-3 border rounded-xl dark:bg-slate-800 focus:outline-brand-500">
@@ -672,12 +672,17 @@
                 </tr>`;
                 
                 htmlUid += `<tr class="border-b dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                    <td class="p-3 font-bold">${u.nama}</td>
-                    <td class="p-3">${u.username}</td>
-                    <td class="p-3 text-slate-400">********</td>
+                    <td class="p-3 font-bold">
+                        <div class="flex items-center gap-2">
+                            <img src="${u.foto || 'https://placehold.co/100'}" class="w-8 h-8 rounded-full border border-slate-200">
+                            ${u.nama}
+                        </div>
+                    </td>
+                    <td class="p-3">${u.username ? u.username : '<span class="text-rose-500 text-xs italic font-bold">Akses Dicabut</span>'}</td>
+                    <td class="p-3 text-slate-400">${u.password ? '********' : '-'}</td>
                     <td class="p-3 text-center">
-                        <button onclick="editUser('${u.id}')" class="text-brand-500 mx-1 hover:scale-110 transition-transform"><i class="fas fa-edit"></i></button>
-                        <button onclick="deleteUser('${u.id}')" class="text-rose-500 mx-1 hover:scale-110 transition-transform"><i class="fas fa-trash"></i></button>
+                        <button onclick="editUser('${u.id}')" class="text-brand-500 mx-1 hover:scale-110 transition-transform" title="Edit Kredensial"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteUser('${u.id}')" class="text-rose-500 mx-1 hover:scale-110 transition-transform" title="Cabut Akses"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`;
                 htmlSel += `<option value="${u.id}">${u.nama} (${u.role})</option>`;
@@ -788,16 +793,38 @@
             }
         }
 
+        function openAddUserModal() {
+            document.getElementById('titleModalUserId').innerHTML = 'Tambah User ID & Password';
+            document.getElementById('selectUserId').value = '';
+            document.getElementById('inputNewUsername').value = '';
+            document.getElementById('inputNewPassword').value = '';
+            openModal('modalTambahUserId');
+        }
+
         function editUser(id) {
-            showToast('Fitur Edit User ID: Memuat data ' + id + '...', 'info');
+            const user = window.usersDB.find(u => u.id === id);
+            if(!user) return;
+            
+            openModal('modalTambahUserId');
+            document.getElementById('titleModalUserId').innerHTML = 'Edit User ID & Password';
+            
+            document.getElementById('selectUserId').value = id;
+            document.getElementById('inputNewUsername').value = user.username || '';
+            document.getElementById('inputNewPassword').value = user.password || '';
         }
 
         function deleteUser(id) {
-            if(confirm('Apakah Anda yakin ingin mencabut akses pengguna ini?')) {
-                window.usersDB = window.usersDB.filter(u => u.id !== id);
-                localStorage.setItem(window.STORAGE_KEYS.USERS, JSON.stringify(window.usersDB));
-                showToast('Pengguna berhasil dihapus dari sistem.', 'success');
-                renderAdminTables();
+            if(confirm('Yakin ingin mencabut akses Login pengguna ini?\n\n(Data profil pada menu Registrasi TETAP AMAN dan TIDAK DIHAPUS)')) {
+                const userIndex = window.usersDB.findIndex(u => u.id === id);
+                if(userIndex > -1) {
+                    // Hanya mengosongkan username & password agar tidak bisa login
+                    window.usersDB[userIndex].username = '';
+                    window.usersDB[userIndex].password = '';
+                    localStorage.setItem(window.STORAGE_KEYS.USERS, JSON.stringify(window.usersDB));
+                    
+                    showToast('Akses Login berhasil dicabut!', 'success');
+                    renderAdminTables();
+                }
             }
         }
 
